@@ -1,4 +1,4 @@
-package providers
+package config
 
 import (
 	"fmt"
@@ -61,7 +61,7 @@ func (m *Multipass) Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.W
 		return masterNodes, workerNodes, haproxy, err
 	}
 
-	if m.Master > 1 {
+	if m.MasterCount > 1 {
 		instance, err := multipass.Launch(&multipass.LaunchReq{
 			CPU:  2,
 			Name: "haproxy",
@@ -81,7 +81,7 @@ func (m *Multipass) Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.W
 		haproxyIP = instance.IP
 	}
 
-	for i := 0; i < m.Master; i++ {
+	for i := 0; i < m.MasterCount; i++ {
 		instance, err := multipass.Launch(&multipass.LaunchReq{
 			CPU: 2,
 		})
@@ -102,7 +102,7 @@ func (m *Multipass) Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.W
 
 	var workerWaitGroup sync.WaitGroup
 
-	for i := 0; i < m.Worker; i++ {
+	for i := 0; i < m.WorkerCount; i++ {
 
 		workerWaitGroup.Add(1)
 

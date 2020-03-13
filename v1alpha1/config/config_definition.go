@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
-	"github.com/debarshibasak/kubestrike/providers"
 	"github.com/pkg/errors"
 )
 
@@ -15,12 +14,12 @@ const (
 )
 
 type ClusterOrchestrator struct {
-	APIVersion  string               `yaml:"apiVersion" json:"apiVersion"`
-	Kind        Kind                 `yaml:"kind" json:"kind"`
-	Provider    providers.Provider   `yaml:"provider" json:"provider"`
-	ClusterName string               `yaml:"clusterName" json:"clusterName"`
-	Multipass   *providers.Multipass `yaml:"multipass" json:"multipass"`
-	BareMetal   *providers.Baremetal `yaml:"baremetal" json:"baremetal"`
+	APIVersion  string     `yaml:"apiVersion" json:"apiVersion"`
+	Kind        Kind       `yaml:"kind" json:"kind"`
+	Provider    Provider   `yaml:"provider" json:"provider"`
+	ClusterName string     `yaml:"clusterName" json:"clusterName"`
+	Multipass   *Multipass `yaml:"multipass" json:"multipass"`
+	BareMetal   *Baremetal `yaml:"baremetal" json:"baremetal"`
 	Networking  *struct {
 		Plugin  string `yaml:"plugin" json:"plugin"`
 		PodCidr string `yaml:"podCidr" json:"podCidr"`
@@ -31,7 +30,7 @@ func (clusterOrchestrator *ClusterOrchestrator) Install() error {
 
 	log.Println("[kubestrike] provider found - " + clusterOrchestrator.Provider)
 
-	masterNodes, workerNodes, haproxy, err := providers.Get(clusterOrchestrator)
+	masterNodes, workerNodes, haproxy, err := Get(clusterOrchestrator)
 	if err != nil {
 		return err
 	}
@@ -76,11 +75,11 @@ func (clusterOrchestrator *ClusterOrchestrator) Validate() error {
 		return errKind
 	}
 
-	if clusterOrchestrator.Provider == providers.MultipassProvider && clusterOrchestrator.Multipass == nil {
+	if clusterOrchestrator.Provider == MultipassProvider && clusterOrchestrator.Multipass == nil {
 		return errMultipass
 	}
 
-	if clusterOrchestrator.Provider == providers.BaremetalProvider && clusterOrchestrator.BareMetal == nil {
+	if clusterOrchestrator.Provider == BaremetalProvider && clusterOrchestrator.BareMetal == nil {
 		return errBaremetal
 	}
 

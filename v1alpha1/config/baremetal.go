@@ -1,4 +1,4 @@
-package providers
+package config
 
 import (
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
