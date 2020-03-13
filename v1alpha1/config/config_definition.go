@@ -46,7 +46,6 @@ type ClusterOrchestrator struct {
 func (clusterOrchestrator *ClusterOrchestrator) Install() error {
 
 	log.Println("[kubestrike] provider found - " + clusterOrchestrator.Provider)
-	log.Println("[kubestrike] creating vm...")
 
 	if clusterOrchestrator.Provider == providers.MultipassProvider {
 

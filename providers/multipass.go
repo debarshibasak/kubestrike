@@ -1,10 +1,12 @@
 package providers
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
 	"github.com/debarshibasak/go-multipass/multipass"
@@ -30,6 +32,24 @@ func (m *Multipass) Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.W
 		privateKeyLocation string
 		err                error
 	)
+
+	done := make(chan struct{})
+	defer close(done)
+	log.Print("[kubestrike] creating vm...")
+
+	go func() {
+		fmt.Print("waiting.")
+		for {
+			select {
+			default:
+				time.Sleep(1 * time.Second)
+				fmt.Print(".")
+			case <-done:
+				log.Println("\nVMs acquired")
+				return
+			}
+		}
+	}()
 
 	publicKeyLocation, privateKeyLocation, err = kubeadmclient.PublicKeyExists()
 	if err != nil {
