@@ -50,7 +50,7 @@ func (clusterOrchestrator *ClusterOrchestrator) Install() error {
 	if clusterOrchestrator.Provider == providers.MultipassProvider {
 
 		masterNodes, workerNodes, haproxy, err := providers.Get(
-			string(clusterOrchestrator.Provider),
+			clusterOrchestrator.Provider,
 			clusterOrchestrator.Multipass.MasterCount,
 			clusterOrchestrator.Multipass.WorkerCount,
 		)

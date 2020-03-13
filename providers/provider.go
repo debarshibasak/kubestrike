@@ -16,10 +16,10 @@ type Providers interface {
 	Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, *kubeadmclient.HaProxyNode, error)
 }
 
-func Get(provider string, mastercount int, workercount int) ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, *kubeadmclient.HaProxyNode, error) {
+func Get(providerType Provider, mastercount int, workercount int) ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, *kubeadmclient.HaProxyNode, error) {
 
-	switch provider {
-	case "multipass":
+	switch providerType {
+	case MultipassProvider:
 		{
 			p := &Multipass{
 				Worker: workercount,

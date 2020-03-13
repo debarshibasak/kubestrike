@@ -1,6 +1,7 @@
 apiVersion: debarshi.github.com/kubestrike/master/v1alpha1
 kind: ClusterOrchestration
 provider: Multipass
+clusterName: testcluster
 multipass:
   masterCount: 1
   workerCount: 1
