@@ -1,10 +1,9 @@
 package config
 
 import (
+	"encoding/json"
 	"net/http"
 	"time"
-
-	"k8s.io/apimachinery/pkg/util/json"
 
 	"github.com/pkg/errors"
 

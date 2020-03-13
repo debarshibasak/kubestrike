@@ -7,7 +7,6 @@ import (
 	"sync"
 
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
-	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/common"
 	"github.com/debarshibasak/go-multipass/multipass"
 )
 
@@ -32,7 +31,7 @@ func (m *Multipass) Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.W
 		err                error
 	)
 
-	publicKeyLocation, privateKeyLocation, err = common.PublicKeyExists()
+	publicKeyLocation, privateKeyLocation, err = kubeadmclient.PublicKeyExists()
 	if err != nil {
 		return masterNodes, workerNodes, haproxy, err
 	}

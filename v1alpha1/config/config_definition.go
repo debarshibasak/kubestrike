@@ -5,6 +5,7 @@ import (
 
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
 	"github.com/debarshibasak/kubestrike/providers"
+	"github.com/pkg/errors"
 )
 
 type Machine struct {
@@ -55,7 +56,7 @@ func (clusterOrchestrator *ClusterOrchestrator) Install() error {
 			clusterOrchestrator.Multipass.WorkerCount,
 		)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		var networking *kubeadmclient.Networking
@@ -66,7 +67,7 @@ func (clusterOrchestrator *ClusterOrchestrator) Install() error {
 		} else {
 			networking := kubeadmclient.LookupNetworking(cni)
 			if networking == nil {
-				log.Fatal("network plugin in empty")
+				return errors.New("network plugin in empty")
 			}
 		}
 
@@ -83,7 +84,7 @@ func (clusterOrchestrator *ClusterOrchestrator) Install() error {
 
 		err = kubeadmClient.CreateCluster()
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 	}
 

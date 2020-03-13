@@ -37,9 +37,13 @@ func main() {
 		if err := clusterOrchestration.Install(); err != nil {
 			log.Fatal(err)
 		}
+		return
 	}
 
 	if *uninstall {
 		log.Println("[kubestrike] not implemented yet")
+		return
 	}
+
+	log.Fatal("no execution options provided")
 }
