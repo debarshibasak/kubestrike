@@ -1,4 +1,4 @@
-#### Kubestrike
+## Kubestrike
 
 Kubestrike is a tooling for creating kubernetes clusters in an automated fashion on ubuntu, centos and redhat.
 This is an alternative to kubespray. 

@@ -4,24 +4,27 @@ import (
 	"net/http"
 	"time"
 
+	"k8s.io/apimachinery/pkg/util/json"
+
 	"github.com/pkg/errors"
 
 	"github.com/ghodss/yaml"
 )
 
 var (
-	errKind       = errors.New("kind not supported")
-	errAPIKind    = errors.New("api version is not valid")
-	errMultipass  = errors.New("provider is set to multipass but configuration is not set")
-	errBaremetal  = errors.New("provider is set to multipass but configuration is not set")
-	errNetworking = errors.New("networking configurations are not set")
+	errKind               = errors.New("kind not supported")
+	errAPIKind            = errors.New("api version is not valid")
+	errMultipass          = errors.New("provider is set to multipass but configuration is not set")
+	errBaremetal          = errors.New("provider is set to multipass but configuration is not set")
+	errNetworking         = errors.New("networking configurations are not set")
+	errClusterNameIsEmpty = errors.New("cluster name is empty")
 )
 
 type Parser struct {
 	useStrictAPIVersionCheck bool
 }
 
-func New(useStrictAPIVersionCheck bool) *Parser {
+func NewParser(useStrictAPIVersionCheck bool) *Parser {
 
 	return &Parser{useStrictAPIVersionCheck: useStrictAPIVersionCheck}
 }
@@ -52,9 +55,12 @@ func validateAPIVersion(apiVersion string) error {
 func (p *Parser) Parse(config []byte) (*ClusterOrchestrator, error) {
 
 	var clusterOrchestrator ClusterOrchestrator
+
 	err := yaml.Unmarshal(config, &clusterOrchestrator)
 	if err != nil {
-		return nil, err
+		if err := json.Unmarshal(config, &clusterOrchestrator); err != nil {
+			return nil, errors.New("error while parsing configuration")
+		}
 	}
 
 	if p.useStrictAPIVersionCheck {

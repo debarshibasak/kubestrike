@@ -1,6 +1,11 @@
 package config
 
-import "github.com/debarshibasak/kubestrike/providers"
+import (
+	"log"
+
+	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
+	"github.com/debarshibasak/kubestrike/providers"
+)
 
 type Machine struct {
 	Username        string `yaml:"username" json:"username"`
@@ -15,10 +20,11 @@ const (
 )
 
 type ClusterOrchestrator struct {
-	APIVersion string             `yaml:"apiVersion" json:"apiVersion"`
-	Kind       Kind               `yaml:"kind" json:"kind"`
-	Provider   providers.Provider `yaml:"provider" json:"provider"`
-	Multipass  *struct {
+	APIVersion  string             `yaml:"apiVersion" json:"apiVersion"`
+	Kind        Kind               `yaml:"kind" json:"kind"`
+	Provider    providers.Provider `yaml:"provider" json:"provider"`
+	ClusterName string             `yaml:"clusterName" json:"clusterName"`
+	Multipass   *struct {
 		MasterCount int `yaml:"masterCount" json:"masterCount"`
 		WorkerCount int `yaml:"workerCount" json:"workerCount"`
 	} `yaml:"multipass" json:"multipass"`
@@ -36,8 +42,59 @@ type ClusterOrchestrator struct {
 	} `yaml:"networking" json:"networking"`
 }
 
-func (clusterOrchestrator *ClusterOrchestrator) validate() error {
+func (clusterOrchestrator *ClusterOrchestrator) Install() error {
 
+	log.Println("[kubestrike] provider found - " + clusterOrchestrator.Provider)
+	log.Println("[kubestrike] creating vm...")
+
+	if clusterOrchestrator.Provider == providers.MultipassProvider {
+
+		masterNodes, workerNodes, haproxy, err := providers.Get(
+			string(clusterOrchestrator.Provider),
+			clusterOrchestrator.Multipass.MasterCount,
+			clusterOrchestrator.Multipass.WorkerCount,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var networking *kubeadmclient.Networking
+
+		cni := clusterOrchestrator.Networking.Plugin
+		if cni == "" {
+			networking = kubeadmclient.Flannel
+		} else {
+			networking := kubeadmclient.LookupNetworking(cni)
+			if networking == nil {
+				log.Fatal("network plugin in empty")
+			}
+		}
+
+		log.Println("[kubestrike] creating cluster...")
+
+		kubeadmClient := kubeadmclient.Kubeadm{
+			ClusterName: clusterOrchestrator.ClusterName,
+			HaProxyNode: haproxy,
+			MasterNodes: masterNodes,
+			WorkerNodes: workerNodes,
+			VerboseMode: false,
+			Netorking:   networking,
+		}
+
+		err = kubeadmClient.CreateCluster()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	return nil
+}
+
+func (clusterOrchestrator *ClusterOrchestrator) Validate() error {
+
+	if clusterOrchestrator.ClusterName == "" {
+		return errClusterNameIsEmpty
+	}
 	if clusterOrchestrator.Kind != ClusterOrchestration {
 		return errKind
 	}
