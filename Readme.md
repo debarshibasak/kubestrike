@@ -18,8 +18,8 @@ Also, it support cluster creation across various Cloud based kubernetes engines.
 Build the project as follows
 
 ```
-go build -o kubestrike cmd/main.go 
-./kubestrike --provider multipass --master-count 2 --worker-count 2 --cluster-name test
+go install github.com/debarshibasak/kubestrike
+kubestrike --provider multipass --master-count 2 --worker-count 2 --cluster-name test
 ```
 This command will actually acquire 2+2+1 instances in multipass. 1 extra instance to provision HAProxy.
 Currently the cli only supports multipass.
