@@ -2,6 +2,7 @@ package providers
 
 import (
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
+	"github.com/debarshibasak/kubestrike/v1alpha1/config"
 	"github.com/pkg/errors"
 )
 
@@ -16,17 +17,16 @@ type Providers interface {
 	Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, *kubeadmclient.HaProxyNode, error)
 }
 
-func Get(providerType Provider, mastercount int, workercount int) ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, *kubeadmclient.HaProxyNode, error) {
+func Get(orchestrator *config.ClusterOrchestrator) ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, *kubeadmclient.HaProxyNode, error) {
 
-	switch providerType {
+	switch orchestrator.Provider {
 	case MultipassProvider:
 		{
-			p := &Multipass{
-				Worker: workercount,
-				Master: mastercount,
-			}
-
-			return p.Provision()
+			return orchestrator.Multipass.Provision()
+		}
+	case BaremetalProvider:
+		{
+			return orchestrator.BareMetal.Provision()
 		}
 	}
 

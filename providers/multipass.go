@@ -13,8 +13,8 @@ import (
 )
 
 type Multipass struct {
-	Worker int
-	Master int
+	MasterCount int `yaml:"masterCount" json:"masterCount"`
+	WorkerCount int `yaml:"workerCount" json:"workerCount"`
 }
 
 func (m *Multipass) Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, *kubeadmclient.HaProxyNode, error) {

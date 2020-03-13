@@ -8,6 +8,12 @@ In an HA scenario, it also provisions an HA Proxy.
 
 Also, it support cluster creation across various Cloud based kubernetes engines.
 
+#### Installation
+
+```.env
+go install github.com/debarshi/kubestrike
+```
+
 #### Support providers
 
 - Multipass
