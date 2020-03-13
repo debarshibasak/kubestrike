@@ -1,4 +1,4 @@
-package kubestrike
+package main
 
 import (
 	"fmt"
