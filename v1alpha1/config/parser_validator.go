@@ -57,5 +57,11 @@ func (p *Parser) Parse(config []byte) (*ClusterOrchestrator, error) {
 		return nil, err
 	}
 
+	if p.useStrictAPIVersionCheck {
+		if err := validateAPIVersion(clusterOrchestrator.APIVersion); err != nil {
+			return nil, err
+		}
+	}
+
 	return &clusterOrchestrator, nil
 }

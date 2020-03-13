@@ -37,11 +37,6 @@ type ClusterOrchestrator struct {
 }
 
 func (clusterOrchestrator *ClusterOrchestrator) validate() error {
-	if p.useStrictAPIVersionCheck {
-		if err := validateAPIVersion(clusterOrchestrator.APIVersion); err != nil {
-			return err
-		}
-	}
 
 	if clusterOrchestrator.Kind != ClusterOrchestration {
 		return errKind
