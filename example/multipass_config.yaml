@@ -1,0 +1,9 @@
+apiVersion: debarshi.github.com/kubestrike/master/v1alpha1
+kind: ClusterOrchestration
+provider: Multipass
+multipass:
+  masterCount: 1
+  workerCount: 1
+networking:
+  podCidr: 10.233.0.0/16
+  plugin: flannel
