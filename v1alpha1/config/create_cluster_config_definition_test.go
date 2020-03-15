@@ -12,7 +12,7 @@ func TestParsing(t *testing.T) {
 
 	data := `
 apiVersion: kubestrike.debarshi.github.com/master/v1alpha1
-kind: ClusterOrchestration
+kind: CreateClusterKind
 provider: Multipass
 multipass:
   masterCount: 1
@@ -21,12 +21,12 @@ networking:
   podCidr: 10.233.0.0/16
   plugin: flannel`
 
-	var a config.ClusterOrchestrator
+	var a config.CreateCluster
 	err := yaml.Unmarshal([]byte(data), &a)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	fmt.Println(a.ApiVersion)
+	fmt.Println(a.APIVersion)
 
 }

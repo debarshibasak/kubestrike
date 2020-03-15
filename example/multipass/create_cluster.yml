@@ -1,5 +1,5 @@
 apiVersion: debarshi.github.com/kubestrike/master/v1alpha1
-kind: ClusterOrchestration
+kind: CreateCluster
 provider: Multipass
 clusterName: testcluster
 multipass:

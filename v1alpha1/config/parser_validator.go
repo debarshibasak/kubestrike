@@ -51,9 +51,9 @@ func validateAPIVersion(apiVersion string) error {
 	return nil
 }
 
-func (p *Parser) Parse(config []byte) (*ClusterOrchestrator, error) {
+func (p *Parser) Parse(config []byte) (*CreateCluster, error) {
 
-	var clusterOrchestrator ClusterOrchestrator
+	var clusterOrchestrator CreateCluster
 
 	err := yaml.Unmarshal(config, &clusterOrchestrator)
 	if err != nil {

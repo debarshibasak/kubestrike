@@ -1,0 +1,8 @@
+apiVersion: debarshi.github.com/kubestrike/master/v1alpha1
+kind: AddNode
+provider: Multipass
+multipass:
+  machines: 1
+master:
+  ip: 192.168.1.0
+  username: ubuntu

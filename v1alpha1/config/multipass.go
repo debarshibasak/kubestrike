@@ -45,7 +45,6 @@ func (m *Multipass) Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.W
 				time.Sleep(1 * time.Second)
 				fmt.Print(".")
 			case <-done:
-				log.Println("\nVMs acquired")
 				return
 			}
 		}

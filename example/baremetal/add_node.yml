@@ -1,0 +1,15 @@
+apiVersion: debarshi.github.com/kubestrike/master/v1alpha1
+kind: AddNode
+provider: Baremetal
+multipass:
+  machines:
+    - username: ubuntu
+      ip: 192.168.1.0
+      key: /tmp/key.pem
+    - username: ubuntu
+      ip: 192.168.1.1
+      key: /tmp/key.pem
+master:
+  ip: 192.168.1.0
+  username: ubuntu
+  key: /tmp/key.pem

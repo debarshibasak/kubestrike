@@ -1,5 +1,5 @@
-apiVersion: debarshi.github.com/kubestrike/masterv1alpha1
-kind: ClusterOrchestration
+apiVersion: debarshi.github.com/kubestrike/master/v1alpha1
+kind: DeleteCluster
 provider: Baremetal
 baremetal:
   master:
@@ -10,8 +10,8 @@ baremetal:
     - ip: 192.168.1.27
   haproxy:
     - ip: 192.168.1.26
-   defaultUsername: ubuntu
-   defaultPrivateKeyLocation: /home/user/.ssh/id_rsa
+    defaultUsername: ubuntu
+    defaultPrivateKeyLocation: /home/user/.ssh/id_rsa
 networking:
   podCidr: 10.233.0.0/16
   plugin: flannel

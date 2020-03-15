@@ -1,0 +1,17 @@
+apiVersion: debarshi.github.com/kubestrike/master/v1alpha1
+kind: CreateCluster
+provider: Baremetal
+baremetal:
+  master:
+    - ip: 192.168.1.23
+    - ip: 192.168.1.24
+  worker:
+    - ip: 192.168.1.25
+    - ip: 192.168.1.27
+  haproxy:
+    - ip: 192.168.1.26
+   defaultUsername: ubuntu
+   defaultPrivateKeyLocation: /home/user/.ssh/id_rsa
+networking:
+  podCidr: 10.233.0.0/16
+  plugin: flannel

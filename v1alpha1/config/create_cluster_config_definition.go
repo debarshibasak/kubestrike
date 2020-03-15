@@ -3,17 +3,23 @@ package config
 import (
 	"log"
 
+	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/networking"
+
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
-	"github.com/pkg/errors"
+
+	"errors"
 )
 
 type Kind string
 
 const (
-	ClusterOrchestration Kind = "ClusterOrchestration"
+	CreateClusterKind Kind = "CreateCluster"
+	AddNodeKind       Kind = "AddNode"
+	RemoveNodeKind    Kind = "RemoveNode"
+	DeleteClusterKind Kind = "DeleteCluster"
 )
 
-type ClusterOrchestrator struct {
+type CreateCluster struct {
 	APIVersion  string     `yaml:"apiVersion" json:"apiVersion"`
 	Kind        Kind       `yaml:"kind" json:"kind"`
 	Provider    Provider   `yaml:"provider" json:"provider"`
@@ -26,36 +32,36 @@ type ClusterOrchestrator struct {
 	} `yaml:"networking" json:"networking"`
 }
 
-func (clusterOrchestrator *ClusterOrchestrator) Install() error {
+func (createCluster *CreateCluster) Install() error {
 
-	log.Println("[kubestrike] provider found - " + clusterOrchestrator.Provider)
+	log.Println("[kubestrike] provider found - " + createCluster.Provider)
 
-	masterNodes, workerNodes, haproxy, err := Get(clusterOrchestrator)
+	masterNodes, workerNodes, haproxy, err := Get(createCluster)
 	if err != nil {
 		return err
 	}
 
-	var networking *kubeadmclient.Networking
+	var networkingPlugin *networking.Networking
 
-	cni := clusterOrchestrator.Networking.Plugin
+	cni := createCluster.Networking.Plugin
 	if cni == "" {
-		networking = kubeadmclient.Flannel
+		networkingPlugin = networking.Flannel
 	} else {
-		networking := kubeadmclient.LookupNetworking(cni)
-		if networking == nil {
+		networkingPlugin := networking.LookupNetworking(cni)
+		if networkingPlugin == nil {
 			return errors.New("network plugin in empty")
 		}
 	}
 
-	log.Println("[kubestrike] creating cluster...")
+	log.Println("\n[kubestrike] creating cluster...")
 
 	kubeadmClient := kubeadmclient.Kubeadm{
-		ClusterName: clusterOrchestrator.ClusterName,
+		ClusterName: createCluster.ClusterName,
 		HaProxyNode: haproxy,
 		MasterNodes: masterNodes,
 		WorkerNodes: workerNodes,
 		VerboseMode: false,
-		Netorking:   networking,
+		Networking:  networkingPlugin,
 	}
 
 	err = kubeadmClient.CreateCluster()
@@ -66,24 +72,24 @@ func (clusterOrchestrator *ClusterOrchestrator) Install() error {
 	return nil
 }
 
-func (clusterOrchestrator *ClusterOrchestrator) Validate() error {
+func (createCluster *CreateCluster) Validate() error {
 
-	if clusterOrchestrator.ClusterName == "" {
+	if createCluster.ClusterName == "" {
 		return errClusterNameIsEmpty
 	}
-	if clusterOrchestrator.Kind != ClusterOrchestration {
+	if createCluster.Kind != CreateClusterKind {
 		return errKind
 	}
 
-	if clusterOrchestrator.Provider == MultipassProvider && clusterOrchestrator.Multipass == nil {
+	if createCluster.Provider == MultipassProvider && createCluster.Multipass == nil {
 		return errMultipass
 	}
 
-	if clusterOrchestrator.Provider == BaremetalProvider && clusterOrchestrator.BareMetal == nil {
+	if createCluster.Provider == BaremetalProvider && createCluster.BareMetal == nil {
 		return errBaremetal
 	}
 
-	if clusterOrchestrator.Networking == nil {
+	if createCluster.Networking == nil {
 		return errNetworking
 	}
 

@@ -1,0 +1,11 @@
+apiVersion: debarshi.github.com/kubestrike/master/v1alpha1
+kind: DeleteNode
+provider: Multipass
+multipass:
+  machines:
+    - username: ubuntu
+      ip: 192.168.1.0
+master:
+  ip: 192.168.1.0
+  username: ubuntu
+  key: /tmp/key.pem
