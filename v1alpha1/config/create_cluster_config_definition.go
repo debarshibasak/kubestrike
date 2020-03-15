@@ -19,14 +19,18 @@ const (
 	DeleteClusterKind Kind = "DeleteCluster"
 )
 
+type Base struct {
+	APIVersion  string   `yaml:"apiVersion" json:"apiVersion"`
+	Kind        Kind     `yaml:"kind" json:"kind"`
+	Provider    Provider `yaml:"provider" json:"provider"`
+	ClusterName string   `yaml:"clusterName" json:"clusterName"`
+}
+
 type CreateCluster struct {
-	APIVersion  string     `yaml:"apiVersion" json:"apiVersion"`
-	Kind        Kind       `yaml:"kind" json:"kind"`
-	Provider    Provider   `yaml:"provider" json:"provider"`
-	ClusterName string     `yaml:"clusterName" json:"clusterName"`
-	Multipass   *Multipass `yaml:"multipass" json:"multipass"`
-	BareMetal   *Baremetal `yaml:"baremetal" json:"baremetal"`
-	Networking  *struct {
+	Base
+	Multipass  *Multipass `yaml:"multipass" json:"multipass"`
+	BareMetal  *Baremetal `yaml:"baremetal" json:"baremetal"`
+	Networking *struct {
 		Plugin  string `yaml:"plugin" json:"plugin"`
 		PodCidr string `yaml:"podCidr" json:"podCidr"`
 	} `yaml:"networking" json:"networking"`
