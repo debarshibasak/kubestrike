@@ -51,7 +51,7 @@ func validateAPIVersion(apiVersion string) error {
 	return nil
 }
 
-func (p *Parser) Parse(config []byte) (*CreateCluster, error) {
+func (p *Parser) Parse(config []byte) (ClusterOperation, error) {
 
 	var clusterOrchestrator CreateCluster
 

@@ -1,8 +1,9 @@
-package config
+package v1alpha1
 
 import (
+	"errors"
+
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
-	"github.com/pkg/errors"
 )
 
 type Machine struct {

@@ -3,6 +3,8 @@ package config
 import (
 	"log"
 
+	"github.com/debarshibasak/kubestrike/v1alpha1"
+
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/networking"
 
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
@@ -10,33 +12,17 @@ import (
 	"errors"
 )
 
-type Kind string
-
-const (
-	CreateClusterKind Kind = "CreateCluster"
-	AddNodeKind       Kind = "AddNode"
-	RemoveNodeKind    Kind = "RemoveNode"
-	DeleteClusterKind Kind = "DeleteCluster"
-)
-
-type Base struct {
-	APIVersion  string   `yaml:"apiVersion" json:"apiVersion"`
-	Kind        Kind     `yaml:"kind" json:"kind"`
-	Provider    Provider `yaml:"provider" json:"provider"`
-	ClusterName string   `yaml:"clusterName" json:"clusterName"`
-}
-
 type CreateCluster struct {
 	Base
-	Multipass  *Multipass `yaml:"multipass" json:"multipass"`
-	BareMetal  *Baremetal `yaml:"baremetal" json:"baremetal"`
+	Multipass  *v1alpha1.Multipass `yaml:"multipass" json:"multipass"`
+	BareMetal  *v1alpha1.Baremetal `yaml:"baremetal" json:"baremetal"`
 	Networking *struct {
 		Plugin  string `yaml:"plugin" json:"plugin"`
 		PodCidr string `yaml:"podCidr" json:"podCidr"`
 	} `yaml:"networking" json:"networking"`
 }
 
-func (createCluster *CreateCluster) Install() error {
+func (createCluster *CreateCluster) Run(verbose bool) error {
 
 	log.Println("[kubestrike] provider found - " + createCluster.Provider)
 
@@ -64,7 +50,7 @@ func (createCluster *CreateCluster) Install() error {
 		HaProxyNode: haproxy,
 		MasterNodes: masterNodes,
 		WorkerNodes: workerNodes,
-		VerboseMode: false,
+		VerboseMode: verbose,
 		Networking:  networkingPlugin,
 	}
 

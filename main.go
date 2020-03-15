@@ -11,39 +11,31 @@ import (
 func main() {
 
 	configuration := flag.String("config", "", "location of configuration")
-	install := flag.Bool("install", false, "install operation")
-	uninstall := flag.Bool("uninstall", false, "uninstall operation")
+	run := flag.Bool("run", false, "install operation")
 	strictInstalltion := flag.Bool("use-strict", false, "uninstall operation")
+	verbose := flag.Bool("verbose", false, "uninstall operation")
 
 	flag.Parse()
 
 	log.Println("[kubestrike] started")
 
-	if *install {
+	if *run {
 		configRaw, err := ioutil.ReadFile(*configuration)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		clusterOrchestration, err := config.NewParser(*strictInstalltion).Parse(configRaw)
+		clusterOperation, err := config.NewParser(*strictInstalltion).Parse(configRaw)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if err := clusterOrchestration.Validate(); err != nil {
+		if err := clusterOperation.Validate(); err != nil {
 			log.Fatal(err)
 		}
 
-		if err := clusterOrchestration.Install(); err != nil {
+		if err := clusterOperation.Run(*verbose); err != nil {
 			log.Fatal(err)
 		}
-		return
 	}
-
-	if *uninstall {
-		log.Println("[kubestrike] not implemented yet")
-		return
-	}
-
-	log.Fatal("no execution options provided")
 }

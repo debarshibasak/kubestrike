@@ -6,3 +6,4 @@ baremetal:
     - ip: 192.168.1.23
     defaultUsername: ubuntu
     defaultPrivateKeyLocation: /home/user/.ssh/id_rsa
+resetNodes: true
