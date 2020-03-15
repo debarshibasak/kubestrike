@@ -1,3 +1,2 @@
 revive -config ./revive.toml -formatter friendly -exclude ./vendor/... ./...
-
-go build -o kubestrike main.go
+docker build -f Dockerfile.build .
