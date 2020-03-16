@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -30,7 +31,8 @@ func NewParser(useStrictAPIVersionCheck bool) *Parser {
 
 func validateAPIVersion(apiVersion string) error {
 
-	req, err := http.NewRequest(http.MethodGet, apiVersion, nil)
+	log.Println("https://" + apiVersion)
+	req, err := http.NewRequest(http.MethodGet, "https://"+apiVersion, nil)
 	if err != nil {
 		return err
 	}
@@ -52,21 +54,32 @@ func validateAPIVersion(apiVersion string) error {
 }
 
 func (p *Parser) Parse(config []byte) (ClusterOperation, error) {
+	var base Base
 
-	var clusterOrchestrator CreateCluster
-
-	err := yaml.Unmarshal(config, &clusterOrchestrator)
+	err := yaml.Unmarshal(config, &base)
 	if err != nil {
-		if err := json.Unmarshal(config, &clusterOrchestrator); err != nil {
+		if err := json.Unmarshal(config, &base); err != nil {
 			return nil, errors.New("error while parsing configuration")
 		}
 	}
 
 	if p.useStrictAPIVersionCheck {
-		if err := validateAPIVersion(clusterOrchestrator.APIVersion); err != nil {
+		if err := validateAPIVersion(base.APIVersion); err != nil {
 			return nil, err
 		}
 	}
 
-	return &clusterOrchestrator, nil
+	return getOperation(base.Kind).Parse(config)
+}
+
+func getOperation(kind Kind) ClusterOperation {
+	switch kind {
+	case CreateClusterKind:
+		return &CreateCluster{}
+	case DeleteClusterKind:
+		return &DeleteCluster{}
+	default:
+		log.Fatal("kind not supported")
+		return nil
+	}
 }

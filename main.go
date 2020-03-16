@@ -19,7 +19,7 @@ func main() {
 
 	log.Println("[kubestrike] started")
 
-	if *run {
+	if *run && *configuration != "" {
 		configRaw, err := ioutil.ReadFile(*configuration)
 		if err != nil {
 			log.Fatal(err)
@@ -37,5 +37,9 @@ func main() {
 		if err := clusterOperation.Run(*verbose); err != nil {
 			log.Fatal(err)
 		}
+	}
+
+	if !*run || *configuration == "" {
+		log.Fatal("[kubestrike] no configuration or execution instruction set")
 	}
 }

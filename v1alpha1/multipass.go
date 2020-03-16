@@ -38,7 +38,7 @@ func (m *Multipass) Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.W
 	log.Print("[kubestrike] creating vm...")
 
 	go func() {
-		fmt.Print("waiting.")
+		log.Print("[kubestrike] waiting...")
 		for {
 			select {
 			default:

@@ -12,6 +12,3 @@ baremetal:
     - ip: 192.168.1.26
     defaultUsername: ubuntu
     defaultPrivateKeyLocation: /home/user/.ssh/id_rsa
-networking:
-  podCidr: 10.233.0.0/16
-  plugin: flannel

@@ -19,4 +19,5 @@ type Base struct {
 type ClusterOperation interface {
 	Run(verbose bool) error
 	Validate() error
+	Parse(config []byte) (ClusterOperation, error)
 }
