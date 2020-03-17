@@ -1,9 +1,9 @@
 all: revive
 revive:
-	revive -config ./revive.toml -formatter friendly -exclude ./vendor/... ./...
+	revive -config ./.project/revive.toml -formatter friendly -exclude ./vendor/... ./...
 release:
-	./semver.sh -p
+	./.project/semver.sh -p
 release-major:
-	./semver.sh -M
+	./.project/semver.sh -M
 release-minor:
-	./semver.sh -m
+	./.project/semver.sh -m
