@@ -19,9 +19,87 @@ type MultipassCreateCluster struct {
 }
 
 type MultiPassDeleteCluster struct {
-	OnlyKube bool     `yaml:"only_kube" json:"only_kube"`
-	MasterIP []string `yaml:"master_ips" json:"master_ips"`
-	WorkerIP []string `yaml:"worker_ips" json:"worker_ips"`
+	OnlyKube bool     `yaml:"onlyKube" json:"onlyKube"`
+	MasterIP []string `yaml:"master" json:"master"`
+	WorkerIP []string `yaml:"workers" json:"workers"`
+}
+
+type MultiPassAddNode struct {
+	WorkerCount int      `yaml:"workerCount" json:"workerCount"`
+	Master      []string `yaml:"master" json:"master"`
+}
+
+type MultiPassDeleteNode struct {
+	WorkerCount []string `yaml:"workers" json:"workers"`
+	Master      []string `yaml:"master" json:"master"`
+}
+
+func (node *MultiPassDeleteNode) GetNodesForDeletion() (*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
+
+	var workers []*kubeadmclient.WorkerNode
+	var master *kubeadmclient.MasterNode
+
+	_, pvkey, err := kubeadmclient.PublicKeyExists()
+	if err != nil {
+		return master, workers, err
+	}
+
+	for _, n := range node.WorkerCount {
+		workers = append(workers, kubeadmclient.NewWorkerNode("ubuntu", n, pvkey))
+	}
+
+	return kubeadmclient.NewMasterNode("ubuntu", node.Master[0], pvkey), workers, nil
+}
+
+func (node *MultiPassAddNode) GetNodes() (*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
+
+	var workers []*kubeadmclient.WorkerNode
+	publicKeyLocation, privateKeyLocation, err := kubeadmclient.PublicKeyExists()
+	if err != nil {
+		return nil, workers, err
+	}
+
+	publicKey, err := ioutil.ReadFile(publicKeyLocation)
+	if err != nil {
+		return nil, workers, err
+	}
+
+	done := make(chan struct{})
+	defer close(done)
+	log.Print("[kubestrike] creating instances...")
+
+	go func() {
+		log.Print("[kubestrike] waiting...")
+		for {
+			select {
+			default:
+				time.Sleep(1 * time.Second)
+				fmt.Print(".")
+			case <-done:
+				return
+			}
+		}
+	}()
+
+	for i := 0; i < node.WorkerCount; i++ {
+		instance, err := multipass.Launch(&multipass.LaunchReq{
+			CPU: 2,
+		})
+		if err != nil {
+			return nil, workers, err
+		}
+
+		err = multipass.Exec(&multipass.ExecRequest{
+			Name:    instance.Name,
+			Command: "sh -c 'echo " + strings.TrimSpace(string(publicKey)) + " >> /home/ubuntu/.ssh/authorized_keys'",
+		})
+
+		workers = append(workers, kubeadmclient.NewWorkerNode("ubuntu", instance.IP, privateKeyLocation))
+	}
+
+	log.Println("[kubestrike] acquired instances")
+
+	return kubeadmclient.NewMasterNode("ubuntu", node.Master[0], privateKeyLocation), workers, nil
 }
 
 func (m *MultiPassDeleteCluster) DeleteInstances() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
@@ -45,11 +123,11 @@ func (m *MultiPassDeleteCluster) DeleteInstances() ([]*kubeadmclient.MasterNode,
 		usr, _ := user.Current()
 
 		for _, ip := range m.MasterIP {
-			masterNodes = append(masterNodes, kubeadmclient.NewMasterNode("ubuntu", ip, usr.HomeDir+".ssh/id_rsa"))
+			masterNodes = append(masterNodes, kubeadmclient.NewMasterNode("ubuntu", ip, usr.HomeDir+"/.ssh/id_rsa"))
 		}
 
 		for _, ip := range m.WorkerIP {
-			workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode("ubuntu", ip, usr.HomeDir+".ssh/id_rsa"))
+			workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode("ubuntu", ip, usr.HomeDir+"/.ssh/id_rsa"))
 		}
 	}
 
@@ -152,6 +230,11 @@ func (m *MultipassCreateCluster) Provision() ([]*kubeadmclient.MasterNode, []*ku
 			})
 			if err != nil {
 				log.Println(err)
+			}
+
+			if instance.State == "Stopped" {
+				log.Println("instance is stopped")
+				return
 			}
 
 			err = multipass.Exec(&multipass.ExecRequest{

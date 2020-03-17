@@ -1,7 +1,6 @@
 package config
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"time"
@@ -58,9 +57,7 @@ func (p *Parser) Parse(config []byte) (ClusterOperation, error) {
 
 	err := yaml.Unmarshal(config, &base)
 	if err != nil {
-		if err := json.Unmarshal(config, &base); err != nil {
-			return nil, errors.New("error while parsing configuration")
-		}
+		return nil, errors.New("error while parsing configuration")
 	}
 
 	if p.useStrictAPIVersionCheck {
@@ -78,6 +75,10 @@ func getOperation(kind Kind) ClusterOperation {
 		return &CreateCluster{}
 	case DeleteClusterKind:
 		return &DeleteCluster{}
+	case AddNodeKind:
+		return &AddNode{}
+	case RemoveNodeKind:
+		return &DeleteNode{}
 	default:
 		log.Fatal("kind not supported")
 		return nil

@@ -3,6 +3,8 @@ kind: DeleteCluster
 provider: Multipass
 multipass:
   master:
-    - ip: 192.168.64.19
-  worker:
-    - ip: 192.168.64.20
+    - 192.168.64.6
+  workers:
+    - 192.168.64.7
+  onlyKube: true
+  skipWorkerFailure: true

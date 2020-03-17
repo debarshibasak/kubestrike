@@ -1,7 +1,9 @@
 apiVersion: debarshi.github.com/kubestrike/master/v1alpha1
-kind: AddNode
+kind: RemoveNode
 provider: Multipass
 multipass:
-  workerCount: 1
+  workers:
+    - 192.168.64.5
   master:
     - 192.168.64.27
+skip_worker_failure: true

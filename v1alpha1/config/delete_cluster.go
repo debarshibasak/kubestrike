@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 
+	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
 
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
@@ -11,7 +12,7 @@ import (
 )
 
 type DeleteCluster struct {
-	Base      Base
+	Base
 	Multipass *v1alpha1.MultiPassDeleteCluster `yaml:"multipass" json:"multipass"`
 	BareMetal *v1alpha1.BaremetalDeleteCluster `yaml:"baremetal" json:"baremetal"`
 }
@@ -25,18 +26,19 @@ func (d *DeleteCluster) Run(verbose bool) error {
 		return err
 	}
 
+	if len(master) == 0 {
+		return nil
+	}
+
 	kadmClient := kubeadmclient.Kubeadm{
-		ClusterName:          d.Base.ClusterName,
+		ClusterName:          d.ClusterName,
 		MasterNodes:          master,
 		WorkerNodes:          worker,
-		ResetOnDeleteCluster: false,
+		ResetOnDeleteCluster: true,
+		VerboseMode:          verbose,
 	}
 
-	if err := kadmClient.DeleteCluster(); err != nil {
-		return err
-	}
-
-	return nil
+	return kadmClient.DeleteCluster()
 }
 
 func (d *DeleteCluster) Validate() error {
@@ -49,5 +51,13 @@ func (d *DeleteCluster) Validate() error {
 }
 
 func (d *DeleteCluster) Parse(config []byte) (ClusterOperation, error) {
-	return &DeleteCluster{}, nil
+
+	var orchestration DeleteCluster
+
+	err := yaml.Unmarshal(config, &orchestration)
+	if err != nil {
+		return nil, errors.New("error while parsing configuration")
+	}
+
+	return &orchestration, nil
 }

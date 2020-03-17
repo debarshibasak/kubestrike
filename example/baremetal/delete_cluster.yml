@@ -5,10 +5,5 @@ baremetal:
   master:
     - ip: 192.168.1.23
     - ip: 192.168.1.24
-  worker:
-    - ip: 192.168.1.25
-    - ip: 192.168.1.27
-  haproxy:
-    - ip: 192.168.1.26
-    defaultUsername: ubuntu
-    defaultPrivateKeyLocation: /home/user/.ssh/id_rsa
+  username: ubuntu
+  keyLocation: /home/user/.ssh/id_rsa

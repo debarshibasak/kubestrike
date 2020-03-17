@@ -3,10 +3,8 @@ kind: DeleteNode
 provider: Baremetal
 multipass:
   machines:
-    - username: ubuntu
-      ip: 192.168.1.0
-      key: /tmp/key.pem
-master:
-  ip: 192.168.1.0
+    - ip: 192.168.1.0
+  master:
+    - ip: 192.168.1.0
   username: ubuntu
-  key: /tmp/key.pem
+  keyLocation: /tmp/key.pem

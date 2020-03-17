@@ -14,21 +14,53 @@ type Machine struct {
 }
 
 type BaremetalDeleteCluster struct {
-	Master                    []Machine `yaml:"master" json:"master"`
-	Worker                    []Machine `yaml:"worker" json:"worker"`
-	HAProxy                   Machine   `yaml:"haproxy" json:"haproxy"`
-	DefaultPrivateKey         string    `yaml:"defaultPrivateKey" json:"defaultPrivateKey"`
-	DefaultPrivateKeyLocation string    `yaml:"defaultPrivateKeyLocation" json:"defaultPrivateKeyLocation"`
-	DefaultUsername           string    `yaml:"defaultUsername" json:"defaultUsername"`
+	Master  []Machine `yaml:"master" json:"master"`
+	Worker  []Machine `yaml:"worker" json:"worker"`
+	HAProxy Machine   `yaml:"haproxy" json:"haproxy"`
+	Key
 }
 
 type Baremetal struct {
-	Master                    []Machine `yaml:"master" json:"master"`
-	Worker                    []Machine `yaml:"worker" json:"worker"`
-	HAProxy                   Machine   `yaml:"haproxy" json:"haproxy"`
-	DefaultPrivateKey         string    `yaml:"defaultPrivateKey" json:"defaultPrivateKey"`
-	DefaultPrivateKeyLocation string    `yaml:"defaultPrivateKeyLocation" json:"defaultPrivateKeyLocation"`
-	DefaultUsername           string    `yaml:"defaultUsername" json:"defaultUsername"`
+	Master  []Machine `yaml:"master" json:"master"`
+	Worker  []Machine `yaml:"worker" json:"worker"`
+	HAProxy Machine   `yaml:"haproxy" json:"haproxy"`
+	Key
+}
+
+type Key struct {
+	DefaultPrivateKey         string `yaml:"key" json:"keys"` //TODO
+	DefaultPrivateKeyLocation string `yaml:"keyLocation" json:"keyLocation"`
+	DefaultUsername           string `yaml:"username" json:"username"`
+}
+
+type BaremetalAddNode struct {
+	Key
+	Worker []Machine `yaml:"worker" json:"worker"`
+	Master Machine   `yaml:"master" json:"master"`
+}
+
+type BaremetalDeleteNode struct {
+	Key
+	Worker []Machine `yaml:"worker" json:"worker"`
+	Master Machine   `yaml:"master" json:"master"`
+}
+
+func (m *BaremetalAddNode) GetNodes() (*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
+	var workerNodes []*kubeadmclient.WorkerNode
+	for _, workerMachine := range m.Worker {
+		workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode(workerMachine.IP, m.DefaultUsername, m.DefaultPrivateKeyLocation))
+	}
+
+	return kubeadmclient.NewMasterNode(m.DefaultUsername, m.Master.IP, m.DefaultPrivateKeyLocation), workerNodes, nil
+}
+
+func (m *BaremetalAddNode) GetNodesForDeletion() (*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
+	var workerNodes []*kubeadmclient.WorkerNode
+	for _, workerMachine := range m.Worker {
+		workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode(workerMachine.IP, m.DefaultUsername, m.DefaultPrivateKeyLocation))
+	}
+
+	return kubeadmclient.NewMasterNode(m.DefaultUsername, m.Master.IP, m.DefaultPrivateKeyLocation), workerNodes, nil
 }
 
 func (m *BaremetalDeleteCluster) DeleteInstance() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
