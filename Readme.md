@@ -25,8 +25,6 @@ Run the automation as follows.
 ```
 kubestrike --config examples/multipass_config.yaml --install
 ```
-This command will actually acquire 2+2+1 instances in multipass. 1 extra instance to provision HAProxy.
-Currently the cli only supports multipass.
 
 #### Roadmap
 - Following Providers will be supported soon :-
