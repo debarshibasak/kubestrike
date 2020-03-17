@@ -16,7 +16,7 @@ go install github.com/debarshi/kubestrike
 
 #### Support providers
 
-- Multipass
+- Multipass ([example](https://github.com/debarshibasak/kubestrike/tree/master/example/multipass))
 - Baremetal/VM
 
 #### Using CLI to create clusters 
