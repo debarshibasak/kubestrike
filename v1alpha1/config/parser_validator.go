@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/ghodss/yaml"
 )

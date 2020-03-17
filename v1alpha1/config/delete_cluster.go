@@ -1,10 +1,10 @@
 package config
 
 import (
+	"errors"
 	"log"
 
 	"github.com/ghodss/yaml"
-	"github.com/pkg/errors"
 
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
 

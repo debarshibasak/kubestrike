@@ -1,8 +1,9 @@
 package config
 
 import (
+	"errors"
+
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
-	"github.com/pkg/errors"
 )
 
 type Provider string
