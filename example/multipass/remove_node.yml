@@ -6,4 +6,4 @@ multipass:
     - 192.168.64.5
   master:
     - 192.168.64.27
-skip_worker_failure: true
+skipWorkerFailure: true
