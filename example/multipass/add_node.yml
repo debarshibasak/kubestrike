@@ -4,4 +4,4 @@ provider: Multipass
 multipass:
   workerCount: 1
   master:
-    - 192.168.64.27
+    - 192.168.64.8

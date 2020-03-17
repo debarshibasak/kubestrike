@@ -41,7 +41,7 @@ func (a *AddNode) Validate() error {
 		return errMultipass
 	}
 
-	if a.Provider == MultipassProvider && len(a.Multipass.Master) > 0 {
+	if a.Provider == MultipassProvider && len(a.Multipass.Master) == 0 {
 		return errMultipass
 	}
 
