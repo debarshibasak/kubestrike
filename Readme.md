@@ -35,7 +35,7 @@ Currently the cli only supports multipass.
 - Digital Ocean
 
 #### Supporting this project
-- I need funding for testing this project
+- Donate on patreon for testing this project
 - If you want to join this project, please feel free to create pull requests.
 - You can support my effort with donation at [patreon](https://www.patreon.com/bePatron?u=31747625)
 
