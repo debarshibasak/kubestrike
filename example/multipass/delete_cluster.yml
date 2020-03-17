@@ -7,4 +7,3 @@ multipass:
   workers:
     - 192.168.64.7
   onlyKube: true
-  skipWorkerFailure: true
