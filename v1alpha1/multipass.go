@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os/user"
 	"strings"
 	"sync"
 	"time"
@@ -12,12 +13,50 @@ import (
 	"github.com/debarshibasak/go-multipass/multipass"
 )
 
-type Multipass struct {
+type MultipassCreateCluster struct {
 	MasterCount int `yaml:"masterCount" json:"masterCount"`
 	WorkerCount int `yaml:"workerCount" json:"workerCount"`
 }
 
-func (m *Multipass) Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, *kubeadmclient.HaProxyNode, error) {
+type MultiPassDeleteCluster struct {
+	OnlyKube bool     `yaml:"only_kube" json:"only_kube"`
+	MasterIP []string `yaml:"master_ips" json:"master_ips"`
+	WorkerIP []string `yaml:"worker_ips" json:"worker_ips"`
+}
+
+func (m *MultiPassDeleteCluster) DeleteInstances() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
+
+	var masterNodes []*kubeadmclient.MasterNode
+	var workerNodes []*kubeadmclient.WorkerNode
+
+	if !m.OnlyKube {
+		instances, err := multipass.List()
+		if err != nil {
+			return masterNodes, workerNodes, err
+		}
+
+		for _, instance := range instances {
+			if err := multipass.Delete(&multipass.DeleteRequest{Name: instance.Name}); err != nil {
+				return masterNodes, workerNodes, err
+			}
+		}
+	} else {
+
+		usr, _ := user.Current()
+
+		for _, ip := range m.MasterIP {
+			masterNodes = append(masterNodes, kubeadmclient.NewMasterNode("ubuntu", ip, usr.HomeDir+".ssh/id_rsa"))
+		}
+
+		for _, ip := range m.WorkerIP {
+			workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode("ubuntu", ip, usr.HomeDir+".ssh/id_rsa"))
+		}
+	}
+
+	return masterNodes, workerNodes, nil
+}
+
+func (m *MultipassCreateCluster) Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, *kubeadmclient.HaProxyNode, error) {
 
 	var (
 		masters   []string

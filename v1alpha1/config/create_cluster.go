@@ -21,8 +21,8 @@ import (
 
 type CreateCluster struct {
 	Base
-	Multipass  *v1alpha1.Multipass `yaml:"multipass" json:"multipass"`
-	BareMetal  *v1alpha1.Baremetal `yaml:"baremetal" json:"baremetal"`
+	Multipass  *v1alpha1.MultipassCreateCluster `yaml:"multipass" json:"multipass"`
+	BareMetal  *v1alpha1.Baremetal              `yaml:"baremetal" json:"baremetal"`
 	Networking *struct {
 		Plugin      string `yaml:"plugin" json:"plugin"`
 		PodCidr     string `yaml:"podCidr" json:"podCidr"`

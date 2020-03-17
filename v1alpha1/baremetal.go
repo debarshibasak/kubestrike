@@ -13,6 +13,15 @@ type Machine struct {
 	PrivateLocation string `yaml:"privateKeyLocation" json:"privateKeyLocation"`
 }
 
+type BaremetalDeleteCluster struct {
+	Master                    []Machine `yaml:"master" json:"master"`
+	Worker                    []Machine `yaml:"worker" json:"worker"`
+	HAProxy                   Machine   `yaml:"haproxy" json:"haproxy"`
+	DefaultPrivateKey         string    `yaml:"defaultPrivateKey" json:"defaultPrivateKey"`
+	DefaultPrivateKeyLocation string    `yaml:"defaultPrivateKeyLocation" json:"defaultPrivateKeyLocation"`
+	DefaultUsername           string    `yaml:"defaultUsername" json:"defaultUsername"`
+}
+
 type Baremetal struct {
 	Master                    []Machine `yaml:"master" json:"master"`
 	Worker                    []Machine `yaml:"worker" json:"worker"`
@@ -20,6 +29,23 @@ type Baremetal struct {
 	DefaultPrivateKey         string    `yaml:"defaultPrivateKey" json:"defaultPrivateKey"`
 	DefaultPrivateKeyLocation string    `yaml:"defaultPrivateKeyLocation" json:"defaultPrivateKeyLocation"`
 	DefaultUsername           string    `yaml:"defaultUsername" json:"defaultUsername"`
+}
+
+func (m *BaremetalDeleteCluster) DeleteInstance() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
+
+	var masterNodes []*kubeadmclient.MasterNode
+	var workerNodes []*kubeadmclient.WorkerNode
+
+	//TODO Do alternative possibilities check here
+	for _, node := range m.Master {
+		masterNodes = append(masterNodes, kubeadmclient.NewMasterNode(node.Username, node.IP, m.DefaultPrivateKeyLocation))
+	}
+
+	for _, node := range m.Worker {
+		workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode(node.Username, node.IP, m.DefaultPrivateKeyLocation))
+	}
+
+	return masterNodes, workerNodes, nil
 }
 
 func (m *Baremetal) Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, *kubeadmclient.HaProxyNode, error) {
@@ -47,7 +73,6 @@ func (m *Baremetal) Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.W
 		}
 
 		//TODO change it to correct key location
-
 		haproxy = kubeadmclient.NewHaProxyNode(username, m.HAProxy.IP, m.DefaultPrivateKeyLocation)
 	}
 

@@ -1,6 +1,8 @@
 apiVersion: debarshi.github.com/kubestrike/master/v1alpha1
 kind: DeleteCluster
 provider: Multipass
-baremetal:
+multipass:
   master:
-    - ip: 192.168.1.23
+    - ip: 192.168.64.19
+  worker:
+    - ip: 192.168.64.20
