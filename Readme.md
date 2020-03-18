@@ -1,4 +1,5 @@
 ## Kubestrike
+[![CodeFactor](https://www.codefactor.io/repository/github/debarshibasak/kubestrike/badge?s=c522561b3a0c2ea3b686df1947f7114e466cca22)](https://www.codefactor.io/repository/github/debarshibasak/kubestrike) [![CircleCI](https://circleci.com/gh/debarshibasak/kubestrike.svg?style=svg)](https://circleci.com/gh/debarshibasak/kubestrike)
 
 Kubestrike is a tooling for creating kubernetes clusters in an automated fashion on ubuntu (in future for centos and redhat).
 This is an alternative to kubespray. 
