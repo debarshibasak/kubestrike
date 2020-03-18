@@ -2,8 +2,6 @@ package config
 
 import (
 	"log"
-	"net/http"
-	"time"
 
 	"errors"
 
@@ -24,7 +22,6 @@ type Parser struct {
 }
 
 func NewParser(useStrictAPIVersionCheck bool) *Parser {
-
 	return &Parser{useStrictAPIVersionCheck: useStrictAPIVersionCheck}
 }
 
@@ -32,25 +29,6 @@ func validateAPIVersion(apiVersion string) error {
 
 	if apiVersion != "v1" {
 		return errors.New("unsupported api version " + apiVersion)
-	}
-
-	log.Println("https://" + apiVersion)
-	req, err := http.NewRequest(http.MethodGet, "https://"+apiVersion, nil)
-	if err != nil {
-		return err
-	}
-
-	var client http.Client
-
-	client.Timeout = 10 * time.Second
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode != 200 {
-		return errAPIKind
 	}
 
 	return nil
@@ -61,7 +39,7 @@ func (p *Parser) Parse(config []byte) (ClusterOperation, error) {
 
 	err := yaml.Unmarshal(config, &base)
 	if err != nil {
-		return nil, errors.New("error while parsing configuration")
+		return nil, errors.New("error while parsing first configuration - " + err.Error())
 	}
 
 	if p.useStrictAPIVersionCheck {

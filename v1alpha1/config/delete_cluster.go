@@ -43,7 +43,7 @@ func (d *DeleteCluster) Run(verbose bool) error {
 
 func (d *DeleteCluster) Validate() error {
 
-	if d.Multipass.OnlyKube && len(d.Multipass.MasterIP) == 0 {
+	if d.Multipass != nil && d.Multipass.OnlyKube && len(d.Multipass.MasterIP) == 0 {
 		return errors.New("no master specified")
 	}
 

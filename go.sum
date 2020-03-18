@@ -1,5 +1,5 @@
-github.com/debarshibasak/go-kubeadmclient v1.1.1 h1:mcwAWjvXfxxQ0rX9AZ2Rcqz6CHvkMJb+z6Rhtg90Agg=
-github.com/debarshibasak/go-kubeadmclient v1.1.1/go.mod h1:FbSSk/XJ2QALCClWlroMGtxKxQledmXZeWj5xHfV2/E=
+github.com/debarshibasak/go-kubeadmclient v1.1.2 h1:enROvfuq5agB0J3Oy8hJsY3dLpGnckHmc8/m+n7pgOg=
+github.com/debarshibasak/go-kubeadmclient v1.1.2/go.mod h1:FbSSk/XJ2QALCClWlroMGtxKxQledmXZeWj5xHfV2/E=
 github.com/debarshibasak/go-multipass v1.0.3 h1:YoKcwdFG/iDGrsO296URrYlp8UJOAJJU6jDQ7D8gKJA=
 github.com/debarshibasak/go-multipass v1.0.3/go.mod h1:b0JjZSmbnrGrnsD/vtESeBM6W3PLqRweVjU2xbbFISA=
 github.com/ghodss/yaml v1.0.0 h1:wQHKEahhL6wmXdzwWG11gIVCkOv05bNOh+Rxn0yngAk=

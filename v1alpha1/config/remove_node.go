@@ -13,14 +13,15 @@ type DeleteNode struct {
 	Base
 	Multipass         *v1alpha1.MultiPassDeleteNode `yaml:"multipass" json:"multipass"`
 	BareMetal         *v1alpha1.BaremetalAddNode    `yaml:"baremetal" json:"baremetal"`
-	SkipWorkerFailure bool                          `yaml:"skip_worker_failure" json:"skip_worker_failure"`
+	SkipWorkerFailure bool                          `yaml:"skipWorkerFailure" json:"skipWorkerFailure"`
 }
 
 func (d *DeleteNode) Parse(config []byte) (ClusterOperation, error) {
 	var orchestration DeleteNode
+
 	err := yaml.Unmarshal(config, &orchestration)
 	if err != nil {
-		return nil, errors.New("error while parsing configuration - " + err.Error())
+		return nil, errors.New("error while parsing second configuration - " + err.Error())
 	}
 
 	return &orchestration, nil

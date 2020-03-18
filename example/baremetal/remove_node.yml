@@ -1,11 +1,11 @@
 apiVersion: v1
-kind: AddNode
+kind: RemoveNode
 provider: Baremetal
-clusterName: test
 baremetal:
   workers:
     - ip: 192.168.64.16
+    - ip: 192.168.64.15
   master:
       ip: 192.168.64.13
-  username: ubuntu
   keyLocation: /Users/debarshibasak/.ssh/id_rsa
+  username: ubuntu

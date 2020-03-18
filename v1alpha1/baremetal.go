@@ -35,7 +35,7 @@ type Key struct {
 
 type BaremetalAddNode struct {
 	Key
-	Worker []Machine `yaml:"worker" json:"worker"`
+	Worker []Machine `yaml:"workers" json:"workers"`
 	Master Machine   `yaml:"master" json:"master"`
 }
 
@@ -48,7 +48,7 @@ type BaremetalDeleteNode struct {
 func (m *BaremetalAddNode) GetNodes() (*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
 	var workerNodes []*kubeadmclient.WorkerNode
 	for _, workerMachine := range m.Worker {
-		workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode(workerMachine.IP, m.DefaultUsername, m.DefaultPrivateKeyLocation))
+		workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode(m.DefaultUsername, workerMachine.IP, m.DefaultPrivateKeyLocation))
 	}
 
 	return kubeadmclient.NewMasterNode(m.DefaultUsername, m.Master.IP, m.DefaultPrivateKeyLocation), workerNodes, nil
@@ -57,7 +57,7 @@ func (m *BaremetalAddNode) GetNodes() (*kubeadmclient.MasterNode, []*kubeadmclie
 func (m *BaremetalAddNode) GetNodesForDeletion() (*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
 	var workerNodes []*kubeadmclient.WorkerNode
 	for _, workerMachine := range m.Worker {
-		workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode(workerMachine.IP, m.DefaultUsername, m.DefaultPrivateKeyLocation))
+		workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode(m.DefaultUsername, workerMachine.IP, m.DefaultPrivateKeyLocation))
 	}
 
 	return kubeadmclient.NewMasterNode(m.DefaultUsername, m.Master.IP, m.DefaultPrivateKeyLocation), workerNodes, nil
@@ -109,11 +109,11 @@ func (m *Baremetal) Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.W
 	}
 
 	for _, workerMachine := range m.Worker {
-		workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode(workerMachine.IP, m.DefaultUsername, m.DefaultPrivateKeyLocation))
+		workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode(m.DefaultUsername, workerMachine.IP, m.DefaultPrivateKeyLocation))
 	}
 
 	for _, masterMachine := range m.Master {
-		masterNodes = append(masterNodes, kubeadmclient.NewMasterNode(masterMachine.IP, m.DefaultUsername, m.DefaultPrivateKeyLocation))
+		masterNodes = append(masterNodes, kubeadmclient.NewMasterNode(m.DefaultUsername, masterMachine.IP, m.DefaultPrivateKeyLocation))
 	}
 
 	return masterNodes, workerNodes, haproxy, nil
