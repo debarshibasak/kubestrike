@@ -30,6 +30,10 @@ func NewParser(useStrictAPIVersionCheck bool) *Parser {
 
 func validateAPIVersion(apiVersion string) error {
 
+	if apiVersion != "v1" {
+		return errors.New("unsupported api version " + apiVersion)
+	}
+
 	log.Println("https://" + apiVersion)
 	req, err := http.NewRequest(http.MethodGet, "https://"+apiVersion, nil)
 	if err != nil {

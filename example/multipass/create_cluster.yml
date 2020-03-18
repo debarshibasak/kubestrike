@@ -1,4 +1,4 @@
-apiVersion: github.com/debarshibasak/kubestrike/master/v1alpha1
+apiVersion: v1
 kind: CreateCluster
 provider: Multipass
 clusterName: testcluster

@@ -1,4 +1,4 @@
-apiVersion: debarshi.github.com/kubestrike/master/v1alpha1
+apiVersion: v1
 kind: AddNode
 provider: Multipass
 multipass:

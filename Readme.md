@@ -22,8 +22,26 @@ go install github.com/debarshi/kubestrike
 #### Using CLI to create clusters 
 
 Run the automation as follows.
+
+A manifest file looks like this.
 ```
-kubestrike --config examples/multipass_config.yaml --install
+apiVersion: v1
+kind: CreateCluster
+provider: Multipass
+clusterName: testcluster
+multipass:
+  masterCount: 1
+  workerCount: 3
+networking:
+  podCidr: 10.233.0.0/18
+  serviceCidr: 10.233.64.0/18
+  plugin: flannel
+```
+
+To execute the automation, you have to run as follows.
+
+```
+kubestrike --config examples/create_cluster.yml --install
 ```
 
 #### Roadmap
