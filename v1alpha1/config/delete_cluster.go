@@ -26,10 +26,6 @@ func (d *DeleteCluster) Run(verbose bool) error {
 		return err
 	}
 
-	if len(master) == 0 {
-		return nil
-	}
-
 	kadmClient := kubeadmclient.Kubeadm{
 		ClusterName:          d.ClusterName,
 		MasterNodes:          master,

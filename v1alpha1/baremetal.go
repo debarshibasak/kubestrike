@@ -69,11 +69,11 @@ func (m *BaremetalDeleteCluster) DeleteInstance() ([]*kubeadmclient.MasterNode, 
 
 	//TODO Do alternative possibilities check here
 	for _, node := range m.Master {
-		masterNodes = append(masterNodes, kubeadmclient.NewMasterNode(node.Username, node.IP, m.DefaultPrivateKeyLocation))
+		masterNodes = append(masterNodes, kubeadmclient.NewMasterNode(m.DefaultUsername, node.IP, m.DefaultPrivateKeyLocation))
 	}
 
 	for _, node := range m.Worker {
-		workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode(node.Username, node.IP, m.DefaultPrivateKeyLocation))
+		workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode(m.DefaultUsername, node.IP, m.DefaultPrivateKeyLocation))
 	}
 
 	return masterNodes, workerNodes, nil
