@@ -1,7 +1,7 @@
 package config
 
 import (
-	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -36,9 +36,7 @@ func (createCluster *CreateCluster) Parse(config []byte) (ClusterOperation, erro
 
 	err := yaml.Unmarshal(config, &orchestration)
 	if err != nil {
-		if err := json.Unmarshal(config, &orchestration); err != nil {
-			return nil, errors.New("error while parsing configuration")
-		}
+		return nil, errors.New("error while parsing inner configuration")
 	}
 
 	return &orchestration, nil
@@ -91,7 +89,16 @@ func (createCluster *CreateCluster) Run(verbose bool) error {
 
 	u, _ := user.Current()
 
-	return ioutil.WriteFile(u.HomeDir+"/.kubeconfig_"+createCluster.ClusterName, []byte(kubeConfig), os.FileMode(0777))
+	kubeconfigLocation := u.HomeDir + "/.kubeconfig_" + createCluster.ClusterName
+	if err := ioutil.WriteFile(kubeconfigLocation, []byte(kubeConfig), os.FileMode(0777)); err != nil {
+		return err
+	}
+
+	log.Println("[kubestrike] You can access the cluster now")
+	fmt.Println("")
+	fmt.Println("KUBECONFIG=" + kubeconfigLocation + " kubectl get nodes")
+
+	return nil
 }
 
 func (createCluster *CreateCluster) Validate() error {

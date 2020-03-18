@@ -26,10 +26,6 @@ func (d *DeleteCluster) Run(verbose bool) error {
 		return err
 	}
 
-	if len(master) == 0 {
-		return nil
-	}
-
 	kadmClient := kubeadmclient.Kubeadm{
 		ClusterName:          d.ClusterName,
 		MasterNodes:          master,
@@ -43,7 +39,7 @@ func (d *DeleteCluster) Run(verbose bool) error {
 
 func (d *DeleteCluster) Validate() error {
 
-	if d.Multipass.OnlyKube && len(d.Multipass.MasterIP) == 0 {
+	if d.Multipass != nil && d.Multipass.OnlyKube && len(d.Multipass.MasterIP) == 0 {
 		return errors.New("no master specified")
 	}
 

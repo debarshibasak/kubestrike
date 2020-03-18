@@ -21,7 +21,7 @@ func (a *AddNode) Parse(config []byte) (ClusterOperation, error) {
 
 	err := yaml.Unmarshal(config, &orchestration)
 	if err != nil {
-		return nil, errors.New("error while parsing configuration")
+		return nil, errors.New("error while parsing configuration - " + err.Error())
 	}
 
 	return &orchestration, nil

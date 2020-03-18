@@ -3,7 +3,8 @@ kind: DeleteCluster
 provider: Baremetal
 baremetal:
   master:
-    - ip: 192.168.1.23
-    - ip: 192.168.1.24
+    - ip: 192.168.64.13
+  workers:
+    - ip: 192.168.64.14
   username: ubuntu
-  keyLocation: /home/user/.ssh/id_rsa
+  keyLocation: /Users/debarshibasak/.ssh/id_rsa
