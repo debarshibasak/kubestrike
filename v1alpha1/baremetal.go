@@ -14,10 +14,9 @@ type Machine struct {
 }
 
 type BaremetalDeleteCluster struct {
-	Master  []Machine `yaml:"master" json:"master"`
-	Worker  []Machine `yaml:"worker" json:"worker"`
-	HAProxy Machine   `yaml:"haproxy" json:"haproxy"`
 	Key
+	Master []Machine `yaml:"master" json:"master"`
+	Worker []Machine `yaml:"workers" json:"workers"`
 }
 
 type Baremetal struct {

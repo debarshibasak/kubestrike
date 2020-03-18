@@ -3,7 +3,7 @@ module github.com/debarshibasak/kubestrike
 go 1.12
 
 require (
-	github.com/debarshibasak/go-kubeadmclient v1.1.2
+	github.com/debarshibasak/go-kubeadmclient v1.1.3
 	github.com/debarshibasak/go-multipass v1.0.3
 	github.com/ghodss/yaml v1.0.0
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
