@@ -43,7 +43,7 @@ networking:
 To execute the automation, you have to run as follows.
 
 ```
-kubestrike --config examples/create_cluster.yml --install
+kubestrike --config examples/create_cluster.yml --run
 ```
 
 #### Roadmap
