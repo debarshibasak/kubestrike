@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
 	"github.com/debarshibasak/go-multipass/multipass"
 )
@@ -149,6 +151,12 @@ func (m *MultipassCreateCluster) Provision() ([]*kubeadmclient.MasterNode, []*ku
 		privateKeyLocation string
 		err                error
 	)
+
+	publicKeyLocation, privateKeyLocation, err = kubeadmclient.PublicKeyExists()
+	if err != nil {
+		return masterNodes, workerNodes, haproxy,
+			errors.New("id_rsa and id_rsa.pub does not exist. Please generate them before you proceed - " + err.Error())
+	}
 
 	done := make(chan struct{})
 	defer close(done)
