@@ -4,17 +4,17 @@ import (
 	"errors"
 	"log"
 
+	"github.com/debarshibasak/kubestrike/v1alpha1/provider"
+
 	"github.com/ghodss/yaml"
 
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
-
-	"github.com/debarshibasak/kubestrike/v1alpha1"
 )
 
 type DeleteCluster struct {
 	Base
-	Multipass *v1alpha1.MultiPassDeleteCluster `yaml:"multipass" json:"multipass"`
-	BareMetal *v1alpha1.BaremetalDeleteCluster `yaml:"baremetal" json:"baremetal"`
+	Multipass *provider.MultiPassDeleteCluster `yaml:"multipass" json:"multipass"`
+	BareMetal *provider.BaremetalDeleteCluster `yaml:"baremetal" json:"baremetal"`
 }
 
 func (d *DeleteCluster) Run(verbose bool) error {

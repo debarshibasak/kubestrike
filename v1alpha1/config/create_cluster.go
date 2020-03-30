@@ -2,101 +2,149 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
-	"os/user"
-	"strings"
+
+	"github.com/debarshibasak/go-k3s/k3sclient"
 
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
 
+	"github.com/debarshibasak/machina"
+
+	"github.com/debarshibasak/kubestrike/v1alpha1/engine"
+
+	"github.com/debarshibasak/kubestrike/v1alpha1/provider"
+
 	"github.com/ghodss/yaml"
-
-	"github.com/debarshibasak/kubestrike/v1alpha1"
-
-	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/networking"
 
 	"errors"
 )
 
 type CreateCluster struct {
 	Base
-	Multipass  *v1alpha1.MultipassCreateCluster `yaml:"multipass" json:"multipass"`
-	BareMetal  *v1alpha1.Baremetal              `yaml:"baremetal" json:"baremetal"`
-	Networking *struct {
-		Plugin      string `yaml:"plugin" json:"plugin"`
-		PodCidr     string `yaml:"podCidr" json:"podCidr"`
-		ServiceCidr string `yaml:"serviceCidr" json:"serviceCidr"`
-	} `yaml:"networking" json:"networking"`
+	Multipass           *provider.MultipassCreateCluster `yaml:"multipass" json:"multipass"`
+	BareMetal           *provider.Baremetal              `yaml:"baremetal" json:"baremetal"`
+	OrchestrationEngine engine.Orchestrator              `yaml:"-" json:"-"`
+	KubeadmEngine       *engine.KubeadmEngine            `yaml:"kubeadm" json:"kubeadm"`
+	K3sEngine           *engine.K3SEngine                `yaml:"k3s" json:"k3s"`
+	WorkerNodes         []*machina.Node                  `yaml:"-" json:"-"`
+	MasterNodes         []*machina.Node                  `yaml:"-" json:"-"`
+	HAProxy             *machina.Node                    `yaml:"-" json:"-"`
 }
 
 func (createCluster *CreateCluster) Parse(config []byte) (ClusterOperation, error) {
 
-	var orchestration CreateCluster
+	var createClusterConfiguration CreateCluster
 
-	err := yaml.Unmarshal(config, &orchestration)
+	err := yaml.Unmarshal(config, &createClusterConfiguration)
 	if err != nil {
 		return nil, errors.New("error while parsing inner configuration")
 	}
 
-	return &orchestration, nil
+	if createClusterConfiguration.KubeadmEngine != nil && createClusterConfiguration.K3sEngine != nil {
+		return nil, errors.New("only 1 orchestration engine is allowed")
+	}
+
+	if createClusterConfiguration.KubeadmEngine != nil {
+		createClusterConfiguration.OrchestrationEngine = createClusterConfiguration.KubeadmEngine
+	}
+
+	return &createClusterConfiguration, nil
+}
+
+func (c *CreateCluster) getOrchestrator() engine.Orchestrator {
+
+	switch c.OrchestrationEngine.(type) {
+
+	case *engine.KubeadmEngine:
+		{
+
+			var orch *engine.KubeadmEngine
+
+			orch = c.OrchestrationEngine.(*engine.KubeadmEngine)
+
+			var masterNodes []*kubeadmclient.MasterNode
+			var workerNodes []*kubeadmclient.WorkerNode
+			var haproxy *kubeadmclient.HaProxyNode
+
+			for _, master := range c.MasterNodes {
+				masterNodes = append(masterNodes, kubeadmclient.NewMasterNode("ubuntu", master.GetIP(), master.GetPrivateKey()))
+			}
+
+			if c.HAProxy != nil {
+				haproxy = kubeadmclient.NewHaProxyNode("ubuntu", c.HAProxy.GetIP(), c.HAProxy.GetPrivateKey())
+			}
+
+			for _, worker := range c.WorkerNodes {
+				workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode("ubuntu", worker.GetIP(), worker.GetPrivateKey()))
+			}
+
+			orch.HAProxy = haproxy
+			orch.ClusterName = c.ClusterName
+			orch.Masters = masterNodes
+			orch.Workers = workerNodes
+
+			return orch
+		}
+
+	case *engine.K3SEngine:
+		{
+			var orch *engine.K3SEngine
+
+			orch = c.OrchestrationEngine.(*engine.K3SEngine)
+
+			var masterNodes []*k3sclient.Master
+			var workerNodes []*k3sclient.Worker
+			var haproxy *k3sclient.HAProxy
+
+			for _, master := range c.MasterNodes {
+				masterNodes = append(masterNodes, k3sclient.NewMaster("ubuntu", master.GetIP(), master.GetPrivateKey()))
+			}
+
+			if c.HAProxy != nil {
+				haproxy = k3sclient.NewHAProxy("ubuntu", c.HAProxy.GetIP(), c.HAProxy.GetPrivateKey())
+			}
+
+			for _, worker := range c.WorkerNodes {
+				workerNodes = append(workerNodes, k3sclient.NewWorker("ubuntu", worker.GetIP(), worker.GetPrivateKey()))
+			}
+
+			orch.HAProxy = haproxy
+			orch.ClusterName = c.ClusterName
+			orch.Masters = masterNodes
+			orch.Workers = workerNodes
+
+			return orch
+		}
+	default:
+		return nil
+	}
 }
 
 func (createCluster *CreateCluster) Run(verbose bool) error {
 
 	log.Println("[kubestrike] provider found - " + createCluster.Provider)
 
-	masterNodes, workerNodes, haproxy, err := Get(createCluster)
+	err := Get(createCluster)
 	if err != nil {
 		return err
-	}
-
-	var networkingPlugin networking.Networking
-
-	cni := strings.TrimSpace(createCluster.Networking.Plugin)
-	if cni == "" {
-		networkingPlugin = *networking.Flannel
-	} else {
-		v := networking.LookupNetworking(cni)
-		networkingPlugin = *v
-		if networkingPlugin.Name == "" {
-			return errors.New("network plugin in empty")
-		}
 	}
 
 	log.Println("\n[kubestrike] creating cluster...")
 
-	kubeadmClient := kubeadmclient.Kubeadm{
-		ClusterName:    createCluster.ClusterName,
-		HaProxyNode:    haproxy,
-		MasterNodes:    masterNodes,
-		WorkerNodes:    workerNodes,
-		VerboseMode:    verbose,
-		Networking:     &networkingPlugin,
-		PodNetwork:     createCluster.Networking.PodCidr,
-		ServiceNetwork: createCluster.Networking.ServiceCidr,
+	orchestrator := createCluster.getOrchestrator()
+
+	if orchestrator == nil {
+		return errors.New("could not determine the orchestration engine")
 	}
 
-	err = kubeadmClient.CreateCluster()
+	err = orchestrator.CreateCluster()
 	if err != nil {
 		return err
 	}
 
-	kubeConfig, err := kubeadmClient.GetKubeConfig()
-	if err != nil {
-		return err
-	}
-
-	u, _ := user.Current()
-
-	kubeconfigLocation := u.HomeDir + "/.kubeconfig_" + createCluster.ClusterName
-	if err := ioutil.WriteFile(kubeconfigLocation, []byte(kubeConfig), os.FileMode(0777)); err != nil {
-		return err
-	}
-
+	fmt.Println("")
 	log.Println("[kubestrike] You can access the cluster now")
 	fmt.Println("")
-	fmt.Println("KUBECONFIG=" + kubeconfigLocation + " kubectl get nodes")
 
 	return nil
 }
@@ -118,17 +166,17 @@ func (createCluster *CreateCluster) Validate() error {
 		return errBaremetal
 	}
 
-	if createCluster.Networking == nil {
-		return errNetworking
-	}
-
-	if createCluster.Networking != nil && createCluster.Networking.PodCidr != "" && createCluster.Networking.ServiceCidr == "" {
-		return errNetworking
-	}
-
-	if createCluster.Networking != nil && createCluster.Networking.PodCidr == "" && createCluster.Networking.ServiceCidr != "" {
-		return errNetworking
-	}
+	//if createCluster.Networking == nil {
+	//	return errNetworking
+	//}
+	//
+	//if createCluster.Networking != nil && createCluster.Networking.PodCidr != "" && createCluster.Networking.ServiceCidr == "" {
+	//	return errNetworking
+	//}
+	//
+	//if createCluster.Networking != nil && createCluster.Networking.PodCidr == "" && createCluster.Networking.ServiceCidr != "" {
+	//	return errNetworking
+	//}
 
 	return nil
 }

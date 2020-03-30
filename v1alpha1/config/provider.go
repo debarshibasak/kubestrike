@@ -33,18 +33,35 @@ func GetDeleteCluster(orchestrator *DeleteCluster) ([]*kubeadmclient.MasterNode,
 	return nil, nil, errors.New("provisioner not found")
 }
 
-func Get(orchestrator *CreateCluster) ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, *kubeadmclient.HaProxyNode, error) {
+func Get(orchestrator *CreateCluster) error {
 
 	switch orchestrator.Provider {
 	case MultipassProvider:
 		{
-			return orchestrator.Multipass.Provision()
+
+			masters, workers, haproxy, err := orchestrator.Multipass.Provision()
+			if err != nil {
+				return err
+			}
+
+			orchestrator.WorkerNodes = workers
+			orchestrator.MasterNodes = masters
+			orchestrator.HAProxy = haproxy
+			return nil
 		}
 	case BaremetalProvider:
 		{
-			return orchestrator.BareMetal.Provision()
+			masters, workers, haproxy, err := orchestrator.BareMetal.Provision()
+			if err != nil {
+				return err
+			}
+
+			orchestrator.WorkerNodes = workers
+			orchestrator.MasterNodes = masters
+			orchestrator.HAProxy = haproxy
+			return nil
 		}
 	}
 
-	return nil, nil, nil, errors.New("provisioner not found")
+	return errors.New("provisioner not found")
 }

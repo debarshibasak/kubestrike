@@ -1,7 +1,9 @@
-package v1alpha1
+package provider
 
 import (
 	"errors"
+
+	"github.com/debarshibasak/machina"
 
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
 )
@@ -79,11 +81,11 @@ func (m *BaremetalDeleteCluster) DeleteInstance() ([]*kubeadmclient.MasterNode, 
 	return masterNodes, workerNodes, nil
 }
 
-func (m *Baremetal) Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, *kubeadmclient.HaProxyNode, error) {
+func (m *Baremetal) Provision() ([]*machina.Node, []*machina.Node, *machina.Node, error) {
 	var (
-		masterNodes []*kubeadmclient.MasterNode
-		workerNodes []*kubeadmclient.WorkerNode
-		haproxy     *kubeadmclient.HaProxyNode
+		masterNodes []*machina.Node
+		workerNodes []*machina.Node
+		haproxy     *machina.Node
 	)
 
 	if len(m.Master) > 1 {
@@ -104,15 +106,15 @@ func (m *Baremetal) Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.W
 		}
 
 		//TODO change it to correct key location
-		haproxy = kubeadmclient.NewHaProxyNode(username, m.HAProxy.IP, m.DefaultPrivateKeyLocation)
+		haproxy = machina.NewNode(username, m.HAProxy.IP, m.DefaultPrivateKeyLocation)
 	}
 
 	for _, workerMachine := range m.Worker {
-		workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode(m.DefaultUsername, workerMachine.IP, m.DefaultPrivateKeyLocation))
+		workerNodes = append(workerNodes, machina.NewNode(m.DefaultUsername, workerMachine.IP, m.DefaultPrivateKeyLocation))
 	}
 
 	for _, masterMachine := range m.Master {
-		masterNodes = append(masterNodes, kubeadmclient.NewMasterNode(m.DefaultUsername, masterMachine.IP, m.DefaultPrivateKeyLocation))
+		masterNodes = append(masterNodes, machina.NewNode(m.DefaultUsername, masterMachine.IP, m.DefaultPrivateKeyLocation))
 	}
 
 	return masterNodes, workerNodes, haproxy, nil

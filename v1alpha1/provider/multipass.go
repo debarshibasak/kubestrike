@@ -1,4 +1,4 @@
-package v1alpha1
+package provider
 
 import (
 	"fmt"
@@ -8,6 +8,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/debarshibasak/machina"
 
 	"github.com/pkg/errors"
 
@@ -136,23 +138,21 @@ func (m *MultiPassDeleteCluster) DeleteInstances() ([]*kubeadmclient.MasterNode,
 	return masterNodes, workerNodes, nil
 }
 
-func (m *MultipassCreateCluster) Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, *kubeadmclient.HaProxyNode, error) {
+func (m *MultipassCreateCluster) Provision() ([]*machina.Node, []*machina.Node, *machina.Node, error) {
 
 	var (
-		masters   []string
-		workers   []string
-		haproxyIP string
+		masters []string
+		workers []string
 
-		masterNodes []*kubeadmclient.MasterNode
-		workerNodes []*kubeadmclient.WorkerNode
-		haproxy     *kubeadmclient.HaProxyNode
+		masterNodes []*machina.Node
+		workerNodes []*machina.Node
+		haproxy     *machina.Node
 
-		publicKeyLocation  string
-		privateKeyLocation string
-		err                error
+		publicKeyLocation string
+		err               error
 	)
 
-	publicKeyLocation, privateKeyLocation, err = kubeadmclient.PublicKeyExists()
+	publicKeyLocation, _, err = kubeadmclient.PublicKeyExists()
 	if err != nil {
 		return masterNodes, workerNodes, haproxy,
 			errors.New("id_rsa and id_rsa.pub does not exist. Please generate them before you proceed - " + err.Error())
@@ -175,7 +175,7 @@ func (m *MultipassCreateCluster) Provision() ([]*kubeadmclient.MasterNode, []*ku
 		}
 	}()
 
-	publicKeyLocation, privateKeyLocation, err = kubeadmclient.PublicKeyExists()
+	publicKeyLocation, _, err = kubeadmclient.PublicKeyExists()
 	if err != nil {
 		return masterNodes, workerNodes, haproxy, err
 	}
@@ -201,8 +201,6 @@ func (m *MultipassCreateCluster) Provision() ([]*kubeadmclient.MasterNode, []*ku
 		if err != nil {
 			return masterNodes, workerNodes, haproxy, err
 		}
-
-		haproxyIP = instance.IP
 	}
 
 	for i := 0; i < m.MasterCount; i++ {
@@ -259,18 +257,6 @@ func (m *MultipassCreateCluster) Provision() ([]*kubeadmclient.MasterNode, []*ku
 	}
 
 	workerWaitGroup.Wait()
-
-	for _, master := range masters {
-		masterNodes = append(masterNodes, kubeadmclient.NewMasterNode("ubuntu", master, privateKeyLocation))
-	}
-
-	if haproxyIP != "" {
-		haproxy = kubeadmclient.NewHaProxyNode("ubuntu", haproxyIP, privateKeyLocation)
-	}
-
-	for _, worker := range workers {
-		workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode("ubuntu", worker, privateKeyLocation))
-	}
 
 	return masterNodes, workerNodes, haproxy, nil
 }

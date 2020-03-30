@@ -3,16 +3,17 @@ package config
 import (
 	"errors"
 
+	"github.com/debarshibasak/kubestrike/v1alpha1/provider"
+
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
 
-	"github.com/debarshibasak/kubestrike/v1alpha1"
 	"github.com/ghodss/yaml"
 )
 
 type AddNode struct {
 	Base
-	Multipass         *v1alpha1.MultiPassAddNode `yaml:"multipass" json:"multipass"`
-	BareMetal         *v1alpha1.BaremetalAddNode `yaml:"baremetal" json:"baremetal"`
+	Multipass         *provider.MultiPassAddNode `yaml:"multipass" json:"multipass"`
+	BareMetal         *provider.BaremetalAddNode `yaml:"baremetal" json:"baremetal"`
 	SkipWorkerFailure bool                       `yaml:"skip_worker_failure" json:"skip_worker_failure"`
 }
 
