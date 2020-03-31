@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/debarshibasak/kubestrike/v1alpha1/config"
+
 	"github.com/debarshibasak/machina"
 
 	"errors"
@@ -55,17 +57,20 @@ func (node *MultiPassDeleteNode) GetNodesForDeletion() (*kubeadmclient.MasterNod
 	return kubeadmclient.NewMasterNode("ubuntu", node.Master[0], pvkey), workers, nil
 }
 
-func (node *MultiPassAddNode) GetNodes() (*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
+func (node *MultiPassAddNode) GetNodes() (*config.AddNodeResponse, error) {
 
-	var workers []*kubeadmclient.WorkerNode
+	var addNodeResponse config.AddNodeResponse
+
+	var workers []*machina.Node
+
 	publicKeyLocation, privateKeyLocation, err := kubeadmclient.PublicKeyExists()
 	if err != nil {
-		return nil, workers, err
+		return nil, err
 	}
 
 	publicKey, err := ioutil.ReadFile(publicKeyLocation)
 	if err != nil {
-		return nil, workers, err
+		return nil, err
 	}
 
 	done := make(chan struct{})
@@ -90,7 +95,7 @@ func (node *MultiPassAddNode) GetNodes() (*kubeadmclient.MasterNode, []*kubeadmc
 			CPU: 2,
 		})
 		if err != nil {
-			return nil, workers, err
+			return nil, err
 		}
 
 		err = multipass.Exec(&multipass.ExecRequest{
@@ -98,12 +103,15 @@ func (node *MultiPassAddNode) GetNodes() (*kubeadmclient.MasterNode, []*kubeadmc
 			Command: "sh -c 'echo " + strings.TrimSpace(string(publicKey)) + " >> /home/ubuntu/.ssh/authorized_keys'",
 		})
 
-		workers = append(workers, kubeadmclient.NewWorkerNode("ubuntu", instance.IP, privateKeyLocation))
+		workers = append(workers, machina.NewNode("ubuntu", instance.IP, privateKeyLocation))
 	}
 
 	log.Println("[kubestrike] acquired instances")
 
-	return kubeadmclient.NewMasterNode("ubuntu", node.Master[0], privateKeyLocation), workers, nil
+	addNodeResponse.Master = machina.NewNode("ubuntu", node.Master[0], privateKeyLocation)
+	addNodeResponse.Worker = workers
+
+	return &addNodeResponse, nil
 }
 
 func (m *MultiPassDeleteCluster) DeleteInstances() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {

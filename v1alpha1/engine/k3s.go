@@ -37,6 +37,10 @@ func (f *FlannelNetworking) generate() *networking.FlannelOptions {
 	}
 }
 
+func (k *K3SEngine) AddNode() error {
+	return nil
+}
+
 func (k *K3SEngine) CreateCluster() error {
 
 	log.Println("[kubestrike] engine to be used - k3s")

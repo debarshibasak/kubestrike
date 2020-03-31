@@ -3,6 +3,8 @@ package provider
 import (
 	"errors"
 
+	"github.com/debarshibasak/kubestrike/v1alpha1/config"
+
 	"github.com/debarshibasak/machina"
 
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
@@ -46,13 +48,16 @@ type BaremetalDeleteNode struct {
 	Master Machine   `yaml:"master" json:"master"`
 }
 
-func (m *BaremetalAddNode) GetNodes() (*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
-	var workerNodes []*kubeadmclient.WorkerNode
+func (m *BaremetalAddNode) GetNodes() (*config.AddNodeResponse, error) {
+
+	var addNodeResponse config.AddNodeResponse
+	var workerNodes []*machina.Node
 	for _, workerMachine := range m.Worker {
-		workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode(m.DefaultUsername, workerMachine.IP, m.DefaultPrivateKeyLocation))
+		workerNodes = append(workerNodes, machina.NewNode(m.DefaultUsername, workerMachine.IP, m.DefaultPrivateKeyLocation))
 	}
 
-	return kubeadmclient.NewMasterNode(m.DefaultUsername, m.Master.IP, m.DefaultPrivateKeyLocation), workerNodes, nil
+	addNodeResponse.Master = machina.NewNode(m.DefaultUsername, m.Master.IP, m.DefaultPrivateKeyLocation)
+	return &addNodeResponse, nil
 }
 
 func (m *BaremetalAddNode) GetNodesForDeletion() (*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {

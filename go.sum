@@ -6,6 +6,8 @@ github.com/debarshibasak/go-multipass v1.0.5 h1:V7emd0i0qySy5/xISY1rTDcbhWDMmmDn
 github.com/debarshibasak/go-multipass v1.0.5/go.mod h1:b0JjZSmbnrGrnsD/vtESeBM6W3PLqRweVjU2xbbFISA=
 github.com/debarshibasak/machina v1.0.5 h1:FBDt09vUff49flgWtuMadkdAAXLwXlUTVI8LIW+KUd8=
 github.com/debarshibasak/machina v1.0.5/go.mod h1:uU08XtdYQpLfz/Au9u5F+QZr2LN94PMXulD6GZ3l+1I=
+github.com/debarshibasak/machina v1.0.9 h1:rTFUJaC1ty2aAxnPRjiqA22kQfdd4mODrInWF4Xs6ek=
+github.com/debarshibasak/machina v1.0.9/go.mod h1:uU08XtdYQpLfz/Au9u5F+QZr2LN94PMXulD6GZ3l+1I=
 github.com/ghodss/yaml v1.0.0 h1:wQHKEahhL6wmXdzwWG11gIVCkOv05bNOh+Rxn0yngAk=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/google/uuid v1.1.1 h1:Gkbcsh/GbpXz7lPftLA3P6TYMwjCLYm83jiFQZF/3gY=

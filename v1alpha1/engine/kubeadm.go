@@ -27,6 +27,20 @@ type Networking struct {
 	ServiceCidr string `yaml:"serviceCidr" json:"serviceCidr"`
 }
 
+func (k *KubeadmEngine) AddNode() error {
+
+	kadmClient := kubeadmclient.Kubeadm{
+		MasterNodes: []*kubeadmclient.MasterNode{
+			k.Masters[0],
+		},
+		WorkerNodes:       k.Workers,
+		VerboseMode:       true,
+		SkipWorkerFailure: false,
+	}
+
+	return kadmClient.AddNode()
+}
+
 func (k *KubeadmEngine) CreateCluster() error {
 
 	log.Println("[kubestrike] engine to be used - kubeadm")

@@ -31,7 +31,7 @@ type CreateCluster struct {
 	HAProxy             *machina.Node                    `yaml:"-" json:"-"`
 }
 
-func (createCluster *CreateCluster) Parse(config []byte) (ClusterOperation, error) {
+func (c *CreateCluster) Parse(config []byte) (ClusterOperation, error) {
 
 	var createClusterConfiguration CreateCluster
 
@@ -40,7 +40,7 @@ func (createCluster *CreateCluster) Parse(config []byte) (ClusterOperation, erro
 		return nil, errors.New("error while parsing inner configuration")
 	}
 
-	if createCluster.Multipass != nil && createCluster.BareMetal != nil {
+	if c.Multipass != nil && c.BareMetal != nil {
 		return nil, errors.New("only 1 provider is allowed (options are multipass and baremetal)")
 	}
 
@@ -128,18 +128,18 @@ func (c *CreateCluster) getOrchestrator() engine.Orchestrator {
 	}
 }
 
-func (createCluster *CreateCluster) Run(verbose bool) error {
+func (c *CreateCluster) Run(verbose bool) error {
 
-	log.Println("[kubestrike] provider found - " + createCluster.Provider)
+	log.Println("[kubestrike] provider found - " + c.Provider)
 
-	err := Get(createCluster)
+	err := Get(c)
 	if err != nil {
 		return err
 	}
 
 	log.Println("\n[kubestrike] creating cluster...")
 
-	orchestrator := createCluster.getOrchestrator()
+	orchestrator := c.getOrchestrator()
 
 	if orchestrator == nil {
 		return errors.New("could not determine the orchestration engine")
@@ -157,34 +157,17 @@ func (createCluster *CreateCluster) Run(verbose bool) error {
 	return nil
 }
 
-func (createCluster *CreateCluster) Validate() error {
+func (c *CreateCluster) Validate() error {
 
-	if createCluster.ClusterName == "" {
+	if c.ClusterName == "" {
 		return errClusterNameIsEmpty
 	}
-	if createCluster.Kind != CreateClusterKind {
+	if c.Kind != CreateClusterKind {
 		return errKind
 	}
 
-	if createCluster.Provider == MultipassProvider && createCluster.Multipass == nil {
-		return errMultipass
+	if c.Multipass != nil && c.BareMetal != nil {
+		return errors.New("only one provider is allowed")
 	}
-
-	if createCluster.Provider == BaremetalProvider && createCluster.BareMetal == nil {
-		return errBaremetal
-	}
-
-	//if createCluster.Networking == nil {
-	//	return errNetworking
-	//}
-	//
-	//if createCluster.Networking != nil && createCluster.Networking.PodCidr != "" && createCluster.Networking.ServiceCidr == "" {
-	//	return errNetworking
-	//}
-	//
-	//if createCluster.Networking != nil && createCluster.Networking.PodCidr == "" && createCluster.Networking.ServiceCidr != "" {
-	//	return errNetworking
-	//}
-
 	return nil
 }
