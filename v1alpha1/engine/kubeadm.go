@@ -29,6 +29,8 @@ type Networking struct {
 
 func (k *KubeadmEngine) CreateCluster() error {
 
+	log.Println("[kubestrike] engine to be used - kubeadm")
+
 	var networkingPlugin networking.Networking
 
 	cni := strings.TrimSpace(k.Networking.Plugin)

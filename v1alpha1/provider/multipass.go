@@ -175,7 +175,7 @@ func (m *MultipassCreateCluster) Provision() ([]*machina.Node, []*machina.Node, 
 		}
 	}()
 
-	publicKeyLocation, _, err = kubeadmclient.PublicKeyExists()
+	publicKeyLocation, privateKeyLocation, err := kubeadmclient.PublicKeyExists()
 	if err != nil {
 		return masterNodes, workerNodes, haproxy, err
 	}
@@ -201,6 +201,8 @@ func (m *MultipassCreateCluster) Provision() ([]*machina.Node, []*machina.Node, 
 		if err != nil {
 			return masterNodes, workerNodes, haproxy, err
 		}
+
+		haproxy = machina.NewNode("ubuntu", instance.IP, privateKeyLocation)
 	}
 
 	for i := 0; i < m.MasterCount; i++ {
@@ -257,6 +259,14 @@ func (m *MultipassCreateCluster) Provision() ([]*machina.Node, []*machina.Node, 
 	}
 
 	workerWaitGroup.Wait()
+
+	for _, master := range masters {
+		masterNodes = append(masterNodes, machina.NewNode("ubuntu", master, privateKeyLocation))
+	}
+
+	for _, worker := range workers {
+		workerNodes = append(workerNodes, machina.NewNode("ubuntu", worker, privateKeyLocation))
+	}
 
 	return masterNodes, workerNodes, haproxy, nil
 }

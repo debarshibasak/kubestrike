@@ -8,5 +8,5 @@ k3s:
     serviceCidr: 10.233.64.0/18
     backend: vxlan
 multipass:
-  masterCount: 1
+  masterCount: 3
   workerCount: 1

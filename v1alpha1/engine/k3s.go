@@ -39,6 +39,8 @@ func (f *FlannelNetworking) generate() *networking.FlannelOptions {
 
 func (k *K3SEngine) CreateCluster() error {
 
+	log.Println("[kubestrike] engine to be used - k3s")
+
 	k3Client := k3sclient.K3sClient{
 		ClusterName:    k.ClusterName,
 		HAProxy:        k.HAProxy,

@@ -40,12 +40,20 @@ func (createCluster *CreateCluster) Parse(config []byte) (ClusterOperation, erro
 		return nil, errors.New("error while parsing inner configuration")
 	}
 
+	if createCluster.Multipass != nil && createCluster.BareMetal != nil {
+		return nil, errors.New("only 1 provider is allowed (options are multipass and baremetal)")
+	}
+
 	if createClusterConfiguration.KubeadmEngine != nil && createClusterConfiguration.K3sEngine != nil {
 		return nil, errors.New("only 1 orchestration engine is allowed")
 	}
 
 	if createClusterConfiguration.KubeadmEngine != nil {
 		createClusterConfiguration.OrchestrationEngine = createClusterConfiguration.KubeadmEngine
+	}
+
+	if createClusterConfiguration.K3sEngine != nil {
+		createClusterConfiguration.OrchestrationEngine = createClusterConfiguration.K3sEngine
 	}
 
 	return &createClusterConfiguration, nil
