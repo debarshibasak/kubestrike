@@ -1,5 +1,5 @@
-github.com/debarshibasak/go-k3s v1.0.1 h1:sihCSG+Skue9zEZ67mgrSbnpLtoiG02mu72qCACjul0=
-github.com/debarshibasak/go-k3s v1.0.1/go.mod h1:7hUJMAxK1CEslTgei7qwRBH1snpXy6JlxufvWorOHrk=
+github.com/debarshibasak/go-k3s v1.0.2 h1:Zxltc+3C3r2TlKk3Ulv9lvIO1Fc9J2q68s2ofcfLG4w=
+github.com/debarshibasak/go-k3s v1.0.2/go.mod h1:7hUJMAxK1CEslTgei7qwRBH1snpXy6JlxufvWorOHrk=
 github.com/debarshibasak/go-kubeadmclient v1.1.3 h1:9r19pT1NmWpnitktt2luSrAZvy6TlIfaFbJgsUbCKiI=
 github.com/debarshibasak/go-kubeadmclient v1.1.3/go.mod h1:FbSSk/XJ2QALCClWlroMGtxKxQledmXZeWj5xHfV2/E=
 github.com/debarshibasak/go-multipass v1.0.5 h1:V7emd0i0qySy5/xISY1rTDcbhWDMmmDndKQWlXReKvs=
