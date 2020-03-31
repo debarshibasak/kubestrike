@@ -1,4 +1,4 @@
-package config
+package provider
 
 import "github.com/debarshibasak/machina"
 

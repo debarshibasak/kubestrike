@@ -13,12 +13,13 @@ import (
 )
 
 type K3SEngine struct {
-	Networking  FlannelNetworking   `yaml:"networking" json:"networking"`
-	Docker      bool                `yaml:"docker" json:"docker"`
-	Masters     []*k3sclient.Master `yaml:"-" json:"-"`
-	Workers     []*k3sclient.Worker `yaml:"-" json:"-"`
-	HAProxy     *k3sclient.HAProxy  `yaml:"-" json:"-"`
-	ClusterName string              `yaml:"-" json:"-"`
+	Networking     FlannelNetworking   `yaml:"networking" json:"networking"`
+	Docker         bool                `yaml:"docker" json:"docker"`
+	LoadBalancerIP string              `yaml:"loadbalancerIP" json:"loadbalancerIP"`
+	Masters        []*k3sclient.Master `yaml:"-" json:"-"`
+	Workers        []*k3sclient.Worker `yaml:"-" json:"-"`
+	HAProxy        *k3sclient.HAProxy  `yaml:"-" json:"-"`
+	ClusterName    string              `yaml:"-" json:"-"`
 }
 
 type FlannelNetworking struct {
@@ -38,7 +39,20 @@ func (f *FlannelNetworking) generate() *networking.FlannelOptions {
 }
 
 func (k *K3SEngine) AddNode() error {
-	return nil
+
+	if k.LoadBalancerIP == "" {
+		k.LoadBalancerIP = k.Masters[0].GetIP()
+	}
+
+	k3sClient := k3sclient.K3sClient{
+		ClusterName:    k.ClusterName,
+		Master:         k.Masters,
+		Worker:         k.Workers,
+		UseDocker:      k.Docker,
+		LoadBalancerIP: k.LoadBalancerIP,
+	}
+
+	return k3sClient.AddNode()
 }
 
 func (k *K3SEngine) CreateCluster() error {

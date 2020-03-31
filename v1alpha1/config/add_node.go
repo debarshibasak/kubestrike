@@ -2,6 +2,8 @@ package config
 
 import (
 	"errors"
+	"fmt"
+	"log"
 
 	"github.com/debarshibasak/go-k3s/k3sclient"
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
@@ -34,6 +36,22 @@ func (a *AddNode) Parse(config []byte) (ClusterOperation, error) {
 	err := yaml.Unmarshal(config, &orchestration)
 	if err != nil {
 		return nil, errors.New("error while parsing configuration - " + err.Error())
+	}
+
+	if a.Multipass != nil && a.BareMetal != nil {
+		return nil, errors.New("only 1 provider is allowed (options are multipass and baremetal)")
+	}
+
+	if orchestration.KubeadmEngine != nil && orchestration.K3sEngine != nil {
+		return nil, errors.New("only 1 orchestration engine is allowed")
+	}
+
+	if orchestration.KubeadmEngine != nil {
+		orchestration.OrchestrationEngine = orchestration.KubeadmEngine
+	}
+
+	if orchestration.K3sEngine != nil {
+		orchestration.OrchestrationEngine = orchestration.K3sEngine
 	}
 
 	return &orchestration, nil
@@ -78,7 +96,22 @@ func (a *AddNode) Run(verbose bool) error {
 		return errors.New("no orchestrator found")
 	}
 
-	return orch.AddNode()
+	if err := orch.AddNode(); err != nil {
+		log.Fatal("[kubestring] err=" + err.Error())
+	}
+
+	log.Println("[kubestrke] nodes added")
+	fmt.Println("")
+	fmt.Println("")
+	fmt.Println("Name")
+	fmt.Println("------")
+	for _, node := range a.WorkerNodes {
+		fmt.Println(node.GetIP())
+	}
+	fmt.Println("------")
+	fmt.Println("")
+
+	return nil
 }
 
 func (a *AddNode) getOrchestrator() engine.Orchestrator {
@@ -93,7 +126,6 @@ func (a *AddNode) getOrchestrator() engine.Orchestrator {
 
 			var masterNodes []*kubeadmclient.MasterNode
 			var workerNodes []*kubeadmclient.WorkerNode
-			var haproxy *kubeadmclient.HaProxyNode
 
 			masterNodes = append(masterNodes, kubeadmclient.NewMasterNode("ubuntu", a.MasterNodes.GetIP(), a.MasterNodes.GetPrivateKey()))
 
@@ -101,7 +133,6 @@ func (a *AddNode) getOrchestrator() engine.Orchestrator {
 				workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode("ubuntu", worker.GetIP(), worker.GetPrivateKey()))
 			}
 
-			orch.HAProxy = haproxy
 			orch.ClusterName = a.ClusterName
 			orch.Masters = masterNodes
 			orch.Workers = workerNodes
@@ -117,7 +148,6 @@ func (a *AddNode) getOrchestrator() engine.Orchestrator {
 
 			var masterNodes []*k3sclient.Master
 			var workerNodes []*k3sclient.Worker
-			var haproxy *k3sclient.HAProxy
 
 			masterNodes = append(masterNodes, k3sclient.NewMaster("ubuntu", a.MasterNodes.GetIP(), a.MasterNodes.GetPrivateKey()))
 
@@ -125,7 +155,6 @@ func (a *AddNode) getOrchestrator() engine.Orchestrator {
 				workerNodes = append(workerNodes, k3sclient.NewWorker("ubuntu", worker.GetIP(), worker.GetPrivateKey()))
 			}
 
-			orch.HAProxy = haproxy
 			orch.ClusterName = a.ClusterName
 			orch.Masters = masterNodes
 			orch.Workers = workerNodes

@@ -9,8 +9,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/debarshibasak/kubestrike/v1alpha1/config"
-
 	"github.com/debarshibasak/machina"
 
 	"errors"
@@ -57,9 +55,9 @@ func (node *MultiPassDeleteNode) GetNodesForDeletion() (*kubeadmclient.MasterNod
 	return kubeadmclient.NewMasterNode("ubuntu", node.Master[0], pvkey), workers, nil
 }
 
-func (node *MultiPassAddNode) GetNodes() (*config.AddNodeResponse, error) {
+func (node *MultiPassAddNode) GetNodes() (*AddNodeResponse, error) {
 
-	var addNodeResponse config.AddNodeResponse
+	var addNodeResponse AddNodeResponse
 
 	var workers []*machina.Node
 

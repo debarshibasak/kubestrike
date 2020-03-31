@@ -1,22 +1,17 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
 	"github.com/debarshibasak/go-k3s/k3sclient"
-
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
-
+	"github.com/debarshibasak/kubestrike/v1alpha1/engine"
+	"github.com/debarshibasak/kubestrike/v1alpha1/provider"
 	"github.com/debarshibasak/machina"
 
-	"github.com/debarshibasak/kubestrike/v1alpha1/engine"
-
-	"github.com/debarshibasak/kubestrike/v1alpha1/provider"
-
 	"github.com/ghodss/yaml"
-
-	"errors"
 )
 
 type CreateCluster struct {
