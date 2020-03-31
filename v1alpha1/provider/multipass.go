@@ -11,7 +11,7 @@ import (
 
 	"github.com/debarshibasak/machina"
 
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
 	"github.com/debarshibasak/go-multipass/multipass"
