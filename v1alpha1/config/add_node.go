@@ -102,8 +102,6 @@ func (a *AddNode) Run(verbose bool) error {
 
 	log.Println("[kubestrke] nodes added")
 	fmt.Println("")
-	fmt.Println("")
-	fmt.Println("Name")
 	fmt.Println("------")
 	for _, node := range a.WorkerNodes {
 		fmt.Println(node.GetIP())

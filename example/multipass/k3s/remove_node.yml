@@ -1,10 +1,10 @@
 apiVersion: v1
-kind: AddNode
+kind: RemoveNode
 provider: Multipass
 k3s:
-  docker: false
-  loadbalancerIP: 192.168.64.45
+  enabled: true
 multipass:
-  workerCount: 1
+  worker:
+    - 192.168.64.5
   master:
     - 192.168.64.5  #fetch token from master

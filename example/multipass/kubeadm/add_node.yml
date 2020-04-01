@@ -6,4 +6,4 @@ kubeadm:
 multipass:
   workerCount: 1
   master:
-    - 192.168.64.8 #fetch token from master
+    - 192.168.64.45 #fetch token from master
