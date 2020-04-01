@@ -4,8 +4,6 @@ import (
 	"errors"
 
 	"github.com/debarshibasak/machina"
-
-	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient"
 )
 
 type Machine struct {
@@ -58,30 +56,40 @@ func (m *BaremetalAddNode) GetNodes() (*AddNodeResponse, error) {
 	return &addNodeResponse, nil
 }
 
-func (m *BaremetalAddNode) GetNodesForDeletion() (*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
-	var workerNodes []*kubeadmclient.WorkerNode
+func (m *BaremetalAddNode) GetNodesForDeletion() (*RemoveNodeResponse, error) {
+
+	var resp RemoveNodeResponse
+	var workerNodes []*machina.Node
 	for _, workerMachine := range m.Worker {
-		workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode(m.DefaultUsername, workerMachine.IP, m.DefaultPrivateKeyLocation))
+		workerNodes = append(workerNodes, machina.NewNode(m.DefaultUsername, workerMachine.IP, m.DefaultPrivateKeyLocation))
 	}
 
-	return kubeadmclient.NewMasterNode(m.DefaultUsername, m.Master.IP, m.DefaultPrivateKeyLocation), workerNodes, nil
+	resp.Worker = workerNodes
+	resp.Master = machina.NewNode(m.DefaultUsername, m.Master.IP, m.DefaultPrivateKeyLocation)
+
+	return &resp, nil
 }
 
-func (m *BaremetalDeleteCluster) DeleteInstance() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
+func (m *BaremetalDeleteCluster) DeleteInstance() (*DeleteClusterResponse, error) {
 
-	var masterNodes []*kubeadmclient.MasterNode
-	var workerNodes []*kubeadmclient.WorkerNode
+	var masterNodes []*machina.Node
+	var workerNodes []*machina.Node
+
+	var resp DeleteClusterResponse
 
 	//TODO Do alternative possibilities check here
 	for _, node := range m.Master {
-		masterNodes = append(masterNodes, kubeadmclient.NewMasterNode(m.DefaultUsername, node.IP, m.DefaultPrivateKeyLocation))
+		masterNodes = append(masterNodes, machina.NewNode(m.DefaultUsername, node.IP, m.DefaultPrivateKeyLocation))
 	}
 
 	for _, node := range m.Worker {
-		workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode(m.DefaultUsername, node.IP, m.DefaultPrivateKeyLocation))
+		workerNodes = append(workerNodes, machina.NewNode(m.DefaultUsername, node.IP, m.DefaultPrivateKeyLocation))
 	}
 
-	return masterNodes, workerNodes, nil
+	resp.Master = masterNodes
+	resp.Worker = workerNodes
+
+	return &resp, nil
 }
 
 func (m *Baremetal) Provision() ([]*machina.Node, []*machina.Node, *machina.Node, error) {

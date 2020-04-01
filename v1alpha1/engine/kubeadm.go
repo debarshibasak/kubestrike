@@ -41,6 +41,31 @@ func (k *KubeadmEngine) AddNode() error {
 	return kadmClient.AddNode()
 }
 
+func (k *KubeadmEngine) DeleteCluster() error {
+
+	kadmClient := kubeadmclient.Kubeadm{
+		ClusterName:          k.ClusterName,
+		MasterNodes:          k.Masters,
+		WorkerNodes:          k.Workers,
+		ResetOnDeleteCluster: true,
+		VerboseMode:          false,
+	}
+
+	return kadmClient.DeleteCluster()
+}
+
+func (k *KubeadmEngine) RemoveNode() error {
+
+	kadmClient := kubeadmclient.Kubeadm{
+		MasterNodes:       k.Masters,
+		WorkerNodes:       k.Workers,
+		VerboseMode:       false,
+		SkipWorkerFailure: false,
+	}
+
+	return kadmClient.RemoveNode()
+}
+
 func (k *KubeadmEngine) CreateCluster() error {
 
 	log.Println("[kubestrike] engine to be used - kubeadm")

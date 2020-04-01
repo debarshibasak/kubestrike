@@ -90,3 +90,23 @@ func (k *K3SEngine) CreateCluster() error {
 	fmt.Println("KUBECONFIG=" + kubeconfigLocation + " kubectl get nodes")
 	return nil
 }
+
+func (k *K3SEngine) RemoveNode() error {
+
+	k3sClient := k3sclient.K3sClient{
+		Master: k.Masters,
+		Worker: k.Workers,
+	}
+
+	return k3sClient.DeleteNode()
+}
+
+func (k *K3SEngine) DeleteCluster() error {
+
+	k3sClient := k3sclient.K3sClient{
+		Master: k.Masters,
+		Worker: k.Workers,
+	}
+
+	return k3sClient.DeleteCluster()
+}

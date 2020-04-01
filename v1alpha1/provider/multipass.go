@@ -38,21 +38,30 @@ type MultiPassDeleteNode struct {
 	Master      []string `yaml:"master" json:"master"`
 }
 
-func (node *MultiPassDeleteNode) GetNodesForDeletion() (*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
+type RemoveNodeResponse struct {
+	Master *machina.Node
+	Worker []*machina.Node
+}
 
-	var workers []*kubeadmclient.WorkerNode
-	var master *kubeadmclient.MasterNode
+func (node *MultiPassDeleteNode) GetNodesForDeletion() (*RemoveNodeResponse, error) {
+
+	var removeNodeResponse RemoveNodeResponse
+
+	var workers []*machina.Node
 
 	_, pvkey, err := kubeadmclient.PublicKeyExists()
 	if err != nil {
-		return master, workers, err
+		return nil, err
 	}
 
 	for _, n := range node.WorkerCount {
-		workers = append(workers, kubeadmclient.NewWorkerNode("ubuntu", n, pvkey))
+		workers = append(workers, machina.NewNode("ubuntu", n, pvkey))
 	}
 
-	return kubeadmclient.NewMasterNode("ubuntu", node.Master[0], pvkey), workers, nil
+	removeNodeResponse.Worker = workers
+	removeNodeResponse.Master = machina.NewNode("ubuntu", node.Master[0], pvkey)
+
+	return &removeNodeResponse, nil
 }
 
 func (node *MultiPassAddNode) GetNodes() (*AddNodeResponse, error) {
@@ -112,20 +121,27 @@ func (node *MultiPassAddNode) GetNodes() (*AddNodeResponse, error) {
 	return &addNodeResponse, nil
 }
 
-func (m *MultiPassDeleteCluster) DeleteInstances() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
+type DeleteClusterResponse struct {
+	Master []*machina.Node
+	Worker []*machina.Node
+}
 
-	var masterNodes []*kubeadmclient.MasterNode
-	var workerNodes []*kubeadmclient.WorkerNode
+func (m *MultiPassDeleteCluster) DeleteInstances() (*DeleteClusterResponse, error) {
+
+	var masterNodes []*machina.Node
+	var workerNodes []*machina.Node
+
+	var resp DeleteClusterResponse
 
 	if !m.OnlyKube {
 		instances, err := multipass.List()
 		if err != nil {
-			return masterNodes, workerNodes, err
+			return nil, err
 		}
 
 		for _, instance := range instances {
 			if err := multipass.Delete(&multipass.DeleteRequest{Name: instance.Name}); err != nil {
-				return masterNodes, workerNodes, err
+				return nil, err
 			}
 		}
 	} else {
@@ -133,15 +149,18 @@ func (m *MultiPassDeleteCluster) DeleteInstances() ([]*kubeadmclient.MasterNode,
 		usr, _ := user.Current()
 
 		for _, ip := range m.MasterIP {
-			masterNodes = append(masterNodes, kubeadmclient.NewMasterNode("ubuntu", ip, usr.HomeDir+"/.ssh/id_rsa"))
+			masterNodes = append(masterNodes, machina.NewNode("ubuntu", ip, usr.HomeDir+"/.ssh/id_rsa"))
 		}
 
 		for _, ip := range m.WorkerIP {
-			workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode("ubuntu", ip, usr.HomeDir+"/.ssh/id_rsa"))
+			workerNodes = append(workerNodes, machina.NewNode("ubuntu", ip, usr.HomeDir+"/.ssh/id_rsa"))
 		}
 	}
 
-	return masterNodes, workerNodes, nil
+	resp.Master = masterNodes
+	resp.Worker = workerNodes
+
+	return &resp, nil
 }
 
 func (m *MultipassCreateCluster) Provision() ([]*machina.Node, []*machina.Node, *machina.Node, error) {

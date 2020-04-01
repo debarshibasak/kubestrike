@@ -125,10 +125,10 @@ func (a *AddNode) getOrchestrator() engine.Orchestrator {
 			var masterNodes []*kubeadmclient.MasterNode
 			var workerNodes []*kubeadmclient.WorkerNode
 
-			masterNodes = append(masterNodes, kubeadmclient.NewMasterNode("ubuntu", a.MasterNodes.GetIP(), a.MasterNodes.GetPrivateKey()))
+			masterNodes = append(masterNodes, kubeadmclient.NewMasterNode(a.MasterNodes.GetUsername(), a.MasterNodes.GetIP(), a.MasterNodes.GetPrivateKey()))
 
 			for _, worker := range a.WorkerNodes {
-				workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode("ubuntu", worker.GetIP(), worker.GetPrivateKey()))
+				workerNodes = append(workerNodes, kubeadmclient.NewWorkerNode(worker.GetUsername(), worker.GetIP(), worker.GetPrivateKey()))
 			}
 
 			orch.ClusterName = a.ClusterName
@@ -147,10 +147,10 @@ func (a *AddNode) getOrchestrator() engine.Orchestrator {
 			var masterNodes []*k3sclient.Master
 			var workerNodes []*k3sclient.Worker
 
-			masterNodes = append(masterNodes, k3sclient.NewMaster("ubuntu", a.MasterNodes.GetIP(), a.MasterNodes.GetPrivateKey()))
+			masterNodes = append(masterNodes, k3sclient.NewMaster(a.MasterNodes.GetUsername(), a.MasterNodes.GetIP(), a.MasterNodes.GetPrivateKey()))
 
 			for _, worker := range a.WorkerNodes {
-				workerNodes = append(workerNodes, k3sclient.NewWorker("ubuntu", worker.GetIP(), worker.GetPrivateKey()))
+				workerNodes = append(workerNodes, k3sclient.NewWorker(worker.GetUsername(), worker.GetIP(), worker.GetPrivateKey()))
 			}
 
 			orch.ClusterName = a.ClusterName

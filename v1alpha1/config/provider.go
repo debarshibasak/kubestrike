@@ -17,20 +17,38 @@ type Providers interface {
 	Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, *kubeadmclient.HaProxyNode, error)
 }
 
-func GetDeleteCluster(orchestrator *DeleteCluster) ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
+func (orchestrator *DeleteCluster) GetDeleteCluster() error {
 
 	switch orchestrator.Base.Provider {
 	case MultipassProvider:
 		{
-			return orchestrator.Multipass.DeleteInstances()
+			resp, err := orchestrator.Multipass.DeleteInstances()
+			if err != nil {
+				return err
+			}
+
+			orchestrator.Master = resp.Master
+			orchestrator.Worker = resp.Worker
+
+			return nil
+
 		}
 	case BaremetalProvider:
 		{
-			return orchestrator.BareMetal.DeleteInstance()
+			resp, err := orchestrator.BareMetal.DeleteInstance()
+			if err != nil {
+				return err
+			}
+
+			orchestrator.Master = resp.Master
+			orchestrator.Worker = resp.Worker
+
+			return nil
+
 		}
 	}
 
-	return nil, nil, errors.New("provisioner not found")
+	return errors.New("provisioner not found")
 }
 
 func Get(createCluster *CreateCluster) error {
