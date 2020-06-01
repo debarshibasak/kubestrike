@@ -17,34 +17,66 @@ type Providers interface {
 	Provision() ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, *kubeadmclient.HaProxyNode, error)
 }
 
-func GetDeleteCluster(orchestrator *DeleteCluster) ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, error) {
+func (orchestrator *DeleteCluster) GetDeleteCluster() error {
 
 	switch orchestrator.Base.Provider {
 	case MultipassProvider:
 		{
-			return orchestrator.Multipass.DeleteInstances()
+			resp, err := orchestrator.Multipass.DeleteInstances()
+			if err != nil {
+				return err
+			}
+
+			orchestrator.Master = resp.Master
+			orchestrator.Worker = resp.Worker
+
+			return nil
+
 		}
 	case BaremetalProvider:
 		{
-			return orchestrator.BareMetal.DeleteInstance()
+			resp, err := orchestrator.BareMetal.DeleteInstance()
+			if err != nil {
+				return err
+			}
+
+			orchestrator.Master = resp.Master
+			orchestrator.Worker = resp.Worker
+
+			return nil
+
 		}
 	}
 
-	return nil, nil, errors.New("provisioner not found")
+	return errors.New("provisioner not found")
 }
 
-func Get(orchestrator *CreateCluster) ([]*kubeadmclient.MasterNode, []*kubeadmclient.WorkerNode, *kubeadmclient.HaProxyNode, error) {
+func Get(createCluster *CreateCluster) error {
 
-	switch orchestrator.Provider {
-	case MultipassProvider:
-		{
-			return orchestrator.Multipass.Provision()
+	if createCluster.Multipass != nil {
+
+		masters, workers, haproxy, err := createCluster.Multipass.Provision()
+		if err != nil {
+			return err
 		}
-	case BaremetalProvider:
-		{
-			return orchestrator.BareMetal.Provision()
-		}
+
+		createCluster.WorkerNodes = workers
+		createCluster.MasterNodes = masters
+		createCluster.HAProxy = haproxy
+		return nil
 	}
 
-	return nil, nil, nil, errors.New("provisioner not found")
+	if createCluster.BareMetal != nil {
+		masters, workers, haproxy, err := createCluster.BareMetal.Provision()
+		if err != nil {
+			return err
+		}
+
+		createCluster.WorkerNodes = workers
+		createCluster.MasterNodes = masters
+		createCluster.HAProxy = haproxy
+		return nil
+	}
+
+	return errors.New("provisioner not found")
 }

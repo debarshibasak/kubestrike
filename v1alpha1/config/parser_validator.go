@@ -60,7 +60,7 @@ func getOperation(kind Kind) ClusterOperation {
 	case AddNodeKind:
 		return &AddNode{}
 	case RemoveNodeKind:
-		return &DeleteNode{}
+		return &RemoveNode{}
 	default:
 		log.Fatal("kind not supported")
 		return nil

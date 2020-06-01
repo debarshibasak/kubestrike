@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: DeleteCluster
+provider: Multipass
+k3s:
+  enabled: true
+multipass:
+  worker:
+    - 192.168.64.5  #fetch token from master
+    - 192.168.64.5  #fetch token from master
+    - 192.168.64.5  #fetch token from master
+    - 192.168.64.5  #fetch token from master
+    - 192.168.64.5  #fetch token from master
+  master:
+    - 192.168.64.5  #fetch token from master
+    - 192.168.64.5  #fetch token from master
+    - 192.168.64.5  #fetch token from master

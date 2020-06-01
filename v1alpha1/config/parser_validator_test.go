@@ -1,10 +1,8 @@
 package config
 
 import (
-	"fmt"
+	"log"
 	"testing"
-
-	"github.com/debarshibasak/go-kubeadmclient/kubeadmclient/networking"
 )
 
 func TestCreateCluster_Validate(t *testing.T) {
@@ -33,5 +31,7 @@ networking:
 
 	c := op.(*CreateCluster)
 
-	fmt.Printf("%+v", networking.LookupNetworking(c.Networking.Plugin))
+	log.Println(c)
+
+	//fmt.Printf("%+v", networking.LookupNetworking(c.Networking.Plugin))
 }
