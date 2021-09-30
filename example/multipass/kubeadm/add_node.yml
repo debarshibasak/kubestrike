@@ -1,7 +1,9 @@
 apiVersion: v1
 kind: AddNode
 provider: Multipass
+kubeadm:
+  verbose: true
 multipass:
   workerCount: 1
   master:
-    - 192.168.64.8
+    - 192.168.64.45 #fetch token from master
